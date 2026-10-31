@@ -8,8 +8,3 @@ __pycache__/
 instance/
 storage/uploads/*
 storage/results/*
-storage/models/*
-!storage/uploads/.gitkeep
-!storage/results/.gitkeep
-!storage/models/brain/.gitkeep
-!storage/models/retina/.gitkeep
