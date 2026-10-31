@@ -1,0 +1,15 @@
+.cursor/
+__pycache__/
+*.pyc
+.env
+.migrate_scratch.db
+.migrate_test.db
+.venv/
+instance/
+storage/uploads/*
+storage/results/*
+storage/models/*
+!storage/uploads/.gitkeep
+!storage/results/.gitkeep
+!storage/models/brain/.gitkeep
+!storage/models/retina/.gitkeep

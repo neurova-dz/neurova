@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Forbidden{% endblock %}
+{% block page_heading %}Access denied{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad nv-empty-state">
+  <h2 class="nv-card-title">You do not have access to this resource</h2>
+  <p class="nv-muted mb-4">{% if reason %}{{ reason }}{% else %}If you believe this is a mistake, switch accounts or contact your administrator.{% endif %}</p>
+  <a class="nv-btn nv-btn--primary" href="{{ url_for('index') }}">Back to my dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}{{ clinic.name }} · overview{% endblock %}
+{% block page_heading %}{{ clinic.name }}{% endblock %}
+{% block content %}
+
+<div class="nv-shell-grid mb-3">
+  <div class="span-3">{% with label='Doctors', value=kpis.doctors, sub=(kpis.active_doctors|string + ' active') %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Patients', value=kpis.patients %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Active cases', value=kpis.active_folders %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Treated cases', value=kpis.treated_cases %}{% include "components/stat_card.html" %}{% endwith %}</div>
+
+  <div class="span-3">{% with label='Analyses · 24h', value=kpis.jobs_24h %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Analyses · 7d', value=kpis.jobs_7d %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Analyses · 30d', value=kpis.jobs_30d %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Pending now', value=kpis.jobs_pending %}{% include "components/stat_card.html" %}{% endwith %}</div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title mb-2">Analyses · last 14 days</h2>
+      <canvas id="chart-jobs" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Cases by status</h2>
+      <canvas id="chart-status" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="nv-card-title m-0">Recent analyses</h2>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('clinic.cases_board') }}">Board</a>
+      </div>
+      {% if recent_jobs %}
+        <table class="nv-table">
+          <thead><tr><th>Job</th><th>Patient</th><th>Status</th><th>Created</th></tr></thead>
+          <tbody>
+            {% for j in recent_jobs %}
+              <tr>
+                <td><a href="{{ url_for('results.view_result', job_id=j.id) }}">#{{ j.id }} · {{ (j.model_type.value if j.model_type and j.model_type.value else j.model_type) }}</a></td>
+                <td>{{ j.exam.folder.patient.display_name if j.exam and j.exam.folder and j.exam.folder.patient else '—' }}</td>
+                <td><span class="nv-job-status nv-job-status--{{ j.status_value }}">{{ j.status_value }}</span></td>
+                <td class="text-muted small">{{ j.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No analyses yet.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Doctor productivity · 30 days</h2>
+      {% if productivity %}
+        <canvas id="chart-doctors" height="180"></canvas>
+      {% else %}
+        <p class="text-muted m-0">No analyses in the last 30 days.</p>
+      {% endif %}
+      <a class="nv-btn nv-btn--ghost nv-btn--sm mt-3" href="{{ url_for('clinic.doctors_list') }}">Manage doctors</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.Chart) return;
+    var jobs = {{ chart_jobs|tojson }};
+    var status = {{ breakdown|tojson }};
+    var doctors = {{ productivity|tojson }};
+    new Chart(document.getElementById("chart-jobs"), {
+      type: "line",
+      data: { labels: jobs.map(function (r) { return r.date; }),
+              datasets: [{ label: "Analyses", data: jobs.map(function (r) { return r.count; }),
+                           borderColor: "#0d9488", backgroundColor: "rgba(13,148,136,0.15)", tension: 0.3, fill: true }] },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, precision: 0 } } },
+    });
+    new Chart(document.getElementById("chart-status"), {
+      type: "doughnut",
+      data: { labels: status.map(function (r) { return r.label; }),
+              datasets: [{ data: status.map(function (r) { return r.count; }), backgroundColor: ["#0891b2","#0d9488","#d97706","#059669"] }] },
+      options: { plugins: { legend: { position: "bottom" } } },
+    });
+    var dCanvas = document.getElementById("chart-doctors");
+    if (dCanvas && doctors.length) {
+      new Chart(dCanvas, {
+        type: "bar",
+        data: { labels: doctors.map(function (r) { return r.doctor; }),
+                datasets: [{ label: "Analyses", data: doctors.map(function (r) { return r.count; }), backgroundColor: "#2563eb" }] },
+        options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, precision: 0 } } },
+      });
+    }
+  });
+</script>
+{% endblock %}

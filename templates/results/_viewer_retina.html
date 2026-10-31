@@ -1,0 +1,20 @@
+{# Retina viewer — fundus thumbnail + probability bar chart. #}
+<div class="nv-card nv-card-pad">
+  <p class="nv-panel-title m-0 mb-2">Fundus</p>
+  <div class="nv-img-panel">
+    {% if assets.thumbnail_path %}
+      <img src="{{ assets.thumbnail_path }}" alt="Fundus thumbnail" loading="lazy">
+    {% elif job.exam %}
+      <img src="{{ url_for('exams.exam_source_file', exam_id=job.exam.id) }}" alt="Source fundus image" loading="lazy">
+    {% else %}
+      <div class="text-muted small">No image available.</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if assets.probability_chart_path %}
+  <div class="nv-card nv-card-pad mt-3">
+    <p class="nv-panel-title m-0 mb-2">Class probabilities</p>
+    <img src="{{ assets.probability_chart_path }}" alt="Probability bars" style="max-width: 100%;">
+  </div>
+{% endif %}

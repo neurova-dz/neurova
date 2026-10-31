@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}Reset password{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Set a new password</p>
+      <h2 class="nv-card-title">Choose your new password</h2>
+      <form method="post" novalidate>
+        {{ form.csrf_token }}
+        <div class="nv-form-row">
+          {{ nv_field_label(form.password) }}
+          {{ form.password(class_="nv-input", autocomplete="new-password") }}
+          {% for err in form.password.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.password_confirm) }}
+          {{ form.password_confirm(class_="nv-input", autocomplete="new-password") }}
+          {% for err in form.password_confirm.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary w-100">Update password</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

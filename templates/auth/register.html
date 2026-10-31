@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth nv-auth--wide">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">New clinician</p>
+      <h2 class="nv-card-title">Create your NEUROVA account</h2>
+      <p class="nv-card-sub">Pick your primary imaging workflow — brain MRI (oncology) or fundus (diabetic eye disease). You can still switch modality details where the workflow allows.</p>
+      <form method="post">
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="clinic_name">Clinic or practice name</label>
+          <input id="clinic_name" type="text" class="nv-input" name="clinic_name" required placeholder="e.g. City Imaging Center" />
+          <span class="nv-muted small d-block mt-1">Patients and cases are grouped under this clinic.</span>
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="full_name">Full name</label>
+          <input id="full_name" type="text" class="nv-input" name="full_name" required />
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="email">Email</label>
+            <input id="email" type="email" class="nv-input" name="email" required autocomplete="email" />
+          </div>
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="specialty">Clinical specialty</label>
+            <select id="specialty" class="nv-select" name="specialty" required>
+              <option value="" disabled selected>Select…</option>
+              <option value="brain_tumor">Brain tumor &middot; MRI volumes</option>
+              <option value="diabetic_retinopathy">Diabetic retinopathy &middot; Fundus</option>
+            </select>
+          </div>
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="password">Password</label>
+          <input id="password" type="password" class="nv-input" name="password" required minlength="6" autocomplete="new-password" />
+          <span class="nv-muted small d-block mt-1">At least 6 characters.</span>
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary w-100">Register</button>
+      </form>
+      <p class="nv-muted mt-3 mb-0 text-center">
+        Already registered? <a href="{{ url_for('auth.login') }}">Log in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

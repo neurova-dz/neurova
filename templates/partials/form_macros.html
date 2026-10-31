@@ -1,0 +1,9 @@
+{# Red asterisk for required fields is styled in neurova.css (.nv-form-label--required). #}
+{% macro nv_field_label(field, class='nv-form-label', label_for=None) -%}
+{% set label_class = class ~ (' nv-form-label--required' if field.flags.required else '') %}
+{% if label_for is not none %}
+{{ field.label(class=label_class, for=label_for) }}
+{% else %}
+{{ field.label(class=label_class) }}
+{% endif %}
+{%- endmacro %}

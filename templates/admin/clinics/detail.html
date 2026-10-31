@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ clinic.name }}{% endblock %}
+{% block page_heading %}{{ clinic.name }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <p class="nv-muted m-0">{{ clinic.address or '' }} {% if clinic.country %}· {{ clinic.country }}{% endif %}</p>
+    <p class="nv-muted small m-0">Slug: <code>{{ clinic.slug }}</code> · Created {{ clinic.created_at.strftime('%Y-%m-%d') }}</p>
+  </div>
+  <form method="post" action="{{ url_for('admin.clinic_toggle_active', clinic_id=clinic.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if clinic.is_active %}
+      <button class="nv-btn nv-btn--ghost nv-btn--sm" onclick="return confirm('Suspend this clinic? Its users will lose access.');">Suspend</button>
+    {% else %}
+      <button class="nv-btn nv-btn--primary nv-btn--sm">Reactivate</button>
+    {% endif %}
+  </form>
+</div>
+
+<div class="nv-shell-grid mb-3">
+  <div class="span-3">{% with label='Doctors', value=doctors|length %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Patients', value=patients_count %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Folders', value=folder_count %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Analyses', value=job_count %}{% include "components/stat_card.html" %}{% endwith %}</div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Doctors in this clinic</h2>
+      {% if doctors %}
+        <table class="nv-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Specialty</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for doctor, user in doctors %}
+              <tr>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ doctor.specialty or '—' }}</td>
+                <td>{% if user.is_active_account %}<span class="nv-job-status nv-job-status--done">active</span>{% else %}<span class="nv-job-status nv-job-status--cancelled">disabled</span>{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No doctors yet.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Recent audit</h2>
+      {% if audit %}
+        <ul class="list-unstyled m-0">
+          {% for entry in audit %}
+            <li class="nv-timeline-item mb-2">
+              <strong>{{ entry.event_type }}</strong>
+              <span class="text-muted small d-block">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ entry.resource_type or '' }} {{ entry.resource_id or '' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted m-0">No audit entries.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

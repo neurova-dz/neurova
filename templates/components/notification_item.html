@@ -1,0 +1,6 @@
+{# Single notification entry. Caller passes ``notif``. #}
+<a class="nv-notif {% if notif.is_unread %}nv-notif--unread{% endif %}" href="{{ notif.link or url_for('notifications.inbox') }}">
+  <p class="nv-notif__title">{{ notif.title }}</p>
+  {% if notif.body %}<p class="nv-notif__body">{{ notif.body }}</p>{% endif %}
+  <p class="nv-notif__time">{{ notif.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+</a>

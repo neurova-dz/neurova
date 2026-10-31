@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Cases Board{% endblock %}
+{% block page_heading %}Cases board{% endblock %}
+{% block content %}
+
+<form method="get" class="nv-filter-bar">
+  <select class="nv-select" name="doctor_id">
+    <option value="">All doctors</option>
+    {% for doctor, user in doctors %}
+      <option value="{{ doctor.id }}" {% if doctor_filter == doctor.id %}selected{% endif %}>{{ user.full_name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="nv-btn nv-btn--success nv-btn--sm">Filter</button>
+</form>
+
+<div class="nv-kanban">
+  {% for status, label in [('new','New'), ('in_progress','In progress'), ('follow_up','Follow up'), ('closed','Closed')] %}
+    <div class="nv-kanban__col">
+      <p class="nv-kanban__title">{{ label }} <span class="text-muted">({{ cols[status]|length }})</span></p>
+      {% for f in cols[status] %}
+        <div class="nv-case-card">
+          <p class="nv-case-card__title">{{ f.title }}</p>
+          <p class="nv-case-card__meta">{{ f.patient.display_name }}</p>
+          <p class="nv-case-card__meta">
+            {% if f.assigned_doctor %}Assigned · {{ f.assigned_doctor.user.full_name }}{% else %}Created · {{ f.doctor.user.full_name }}{% endif %}
+          </p>
+          <form method="post" action="{{ url_for('clinic.case_assign', folder_id=f.id) }}" class="d-flex gap-1 mt-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="doctor_id" class="nv-select nv-select--sm">
+              <option value="">— unassign —</option>
+              {% for doctor, user in doctors %}
+                <option value="{{ doctor.id }}" {% if f.assigned_doctor_id == doctor.id %}selected{% endif %}>{{ user.full_name }}</option>
+              {% endfor %}
+            </select>
+            <button class="nv-btn nv-btn--ghost nv-btn--sm">Assign</button>
+          </form>
+        </div>
+      {% endfor %}
+      {% if not cols[status] %}<p class="text-muted small m-0">—</p>{% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

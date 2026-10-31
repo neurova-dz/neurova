@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}System Health{% endblock %}
+{% block page_heading %}System Health{% endblock %}
+{% block content %}
+
+<div class="nv-shell-grid mb-3">
+  {% set db = summary.db %}
+  {% set redis = summary.redis %}
+  {% set celery = summary.celery %}
+  <div class="span-4">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Database</p>
+      <h3 class="nv-card-title">{% if db.ok %}Online{% else %}Down{% endif %}</h3>
+      {% if db.ok %}
+        <p class="text-muted small">Latency: {{ db.latency_ms }} ms</p>
+      {% else %}
+        <p class="text-danger small">{{ db.error }}</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="span-4">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Redis (broker)</p>
+      <h3 class="nv-card-title">{% if redis.ok %}Online{% else %}Down{% endif %}</h3>
+      {% if redis.ok %}
+        <p class="text-muted small">Latency: {{ redis.latency_ms }} ms</p>
+      {% else %}
+        <p class="text-danger small">{{ redis.error }}</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="span-4">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Celery workers</p>
+      <h3 class="nv-card-title">{% if celery.ok %}{{ celery.workers|length }} online{% else %}None{% endif %}</h3>
+      {% if celery.workers %}
+        <p class="text-muted small">{{ ', '.join(celery.workers) }}</p>
+      {% elif celery.error %}
+        <p class="text-danger small">{{ celery.error }}</p>
+      {% else %}
+        <p class="text-warning small">Tasks fall back to in-process execution.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="nv-card nv-card-pad">
+  <h2 class="nv-card-title">Model files</h2>
+  <table class="nv-table">
+    <thead><tr><th>Model</th><th>Path</th><th>Present</th><th>Size</th></tr></thead>
+    <tbody>
+      {% for name, info in summary.models.items() %}
+        <tr>
+          <td>{{ name }}</td>
+          <td class="text-muted small">{{ info.path }}</td>
+          <td>{% if info.ok %}<span class="nv-job-status nv-job-status--done">found</span>{% else %}<span class="nv-job-status nv-job-status--failed">missing</span>{% endif %}</td>
+          <td>{{ '%.1f MB' | format((info.size_bytes or 0) / 1024 / 1024) if info.ok else '—' }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="text-muted small mt-2">Environment: <code>{{ summary.env }}</code> · PID: <code>{{ summary.pid }}</code></p>
+</div>
+
+{% endblock %}

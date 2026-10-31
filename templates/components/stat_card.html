@@ -1,0 +1,10 @@
+{# Renders a stat card. Caller passes label, value, and optional delta+tone (up/down/flat). #}
+<div class="nv-stat">
+  <p class="nv-stat__label">{{ label }}</p>
+  <p class="nv-stat__value">{{ value }}</p>
+  {% if delta is defined and delta is not none %}
+    <p class="nv-stat__delta nv-stat__delta--{{ tone or 'flat' }}">{{ delta }}</p>
+  {% elif sub %}
+    <p class="nv-stat__delta nv-stat__delta--flat">{{ sub }}</p>
+  {% endif %}
+</div>

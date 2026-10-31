@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Activity{% endblock %}
+{% block page_heading %}Activity log{% endblock %}
+{% block content %}
+<p class="nv-section-heading">Audit trail</p>
+<p class="nv-muted mb-4">
+  Recent actions recorded for your account (views, creates, and other events). Useful for reviewing access alongside imaging workflows.
+</p>
+
+<div class="nv-card nv-card-pad">
+  {% if audit_entries %}
+  <div class="nv-table-wrap">
+    <table class="nv-table">
+      <thead>
+        <tr>
+          <th>Time (UTC)</th>
+          <th>Event</th>
+          <th>Resource</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in audit_entries %}
+        <tr>
+          <td class="nv-muted small text-nowrap">{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td><code class="small">{{ e.event_type }}</code></td>
+          <td>
+            {% if e.resource_type %}
+              <span class="small">{{ e.resource_type }}</span>
+              {% if e.resource_id %}
+                <span class="d-block nv-muted small">#{{ e.resource_id }}</span>
+              {% endif %}
+            {% else %}
+              <span class="nv-muted">—</span>
+            {% endif %}
+          </td>
+          <td class="small nv-muted">
+            {% if e.details %}
+              <span class="d-inline-block text-break" style="max-width: 280px;">{{ e.details | tojson }}</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="nv-muted mb-0">No audit entries yet. Actions such as viewing results or creating patients will appear here.</p>
+  {% endif %}
+</div>
+{% endblock %}

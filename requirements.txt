@@ -1,0 +1,35 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+email-validator
+Flask-Mail
+Flask-Limiter
+Flask-Talisman
+celery
+redis
+pymysql
+python-dotenv
+itsdangerous
+argon2-cffi
+markdown
+bleach
+weasyprint
+sentry-sdk[flask]
+# CPU wheels (shared hosting / no NVIDIA driver). For GPU: install torch+cuda and full tensorflow, set NEUROVA_ALLOW_TF_GPU=1.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+timm
+albumentations
+opencv-python
+numpy
+pandas
+tensorflow
+tensorflow-cpu
+nibabel
+scipy
+scikit-image
+plotly
+matplotlib
+pytest

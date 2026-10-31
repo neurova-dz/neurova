@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}Register Your Clinic{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth nv-auth--wide">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Clinic onboarding</p>
+      <h2 class="nv-card-title">Register Your Clinic on NEUROVA</h2>
+      <p class="nv-card-sub">
+        You're creating the clinic workspace and your <strong>clinic admin</strong> account.
+        Doctors are added afterwards from inside the clinic dashboard.
+      </p>
+
+      <form method="post" novalidate>
+        {{ form.csrf_token }}
+
+        <div class="nv-section-heading mt-3">1. Clinic / hospital</div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.clinic_name) }}
+          {{ form.clinic_name(class_="nv-input", placeholder="e.g. City Imaging Center") }}
+          {% for err in form.clinic_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            {{ nv_field_label(form.clinic_country) }}
+            {{ form.clinic_country(class_="nv-input") }}
+            {% for err in form.clinic_country.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="nv-form-row">
+            {{ nv_field_label(form.clinic_phone) }}
+            {{ form.clinic_phone(class_="nv-input") }}
+          </div>
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.clinic_address) }}
+          {{ form.clinic_address(class_="nv-input") }}
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.contact_email) }}
+          {{ form.contact_email(class_="nv-input", placeholder="contact@clinic.org") }}
+        </div>
+
+        <div class="nv-section-heading mt-4">2. Your admin account</div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            {{ nv_field_label(form.admin_full_name) }}
+            {{ form.admin_full_name(class_="nv-input") }}
+            {% for err in form.admin_full_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="nv-form-row">
+            {{ nv_field_label(form.admin_email) }}
+            {{ form.admin_email(class_="nv-input", autocomplete="email") }}
+            {% for err in form.admin_email.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            {{ nv_field_label(form.admin_password) }}
+            {{ form.admin_password(class_="nv-input", autocomplete="new-password") }}
+            {% for err in form.admin_password.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="nv-form-row">
+            {{ nv_field_label(form.admin_password_confirm) }}
+            {{ form.admin_password_confirm(class_="nv-input", autocomplete="new-password") }}
+            {% for err in form.admin_password_confirm.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+          </div>
+        </div>
+
+        <div class="nv-form-row">
+          <label class="form-check-label small">
+            {{ form.accept_terms.label(class="form-check-label small") }}
+            {{ form.accept_terms(class_="form-check-input me-2") }}
+          </label>
+        </div>
+
+        <button type="submit" class="nv-btn nv-btn--primary w-100 mt-2">Register clinic</button>
+      </form>
+
+      <p class="nv-muted mt-3 mb-0 text-center small">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

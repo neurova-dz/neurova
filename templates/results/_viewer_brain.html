@@ -1,0 +1,49 @@
+{# Brain MRI viewer — tabbed planes + 3D iframe (Bootstrap tabs). Prefer multiclass PNGs, then overlay. #}
+<div class="nv-card nv-card-pad nv-brain-viewer">
+  <p class="nv-panel-title m-0 mb-2">Planes &amp; 3D</p>
+  <ul class="nav nav-tabs nv-tabs mb-3" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="nv-brain-tab-axial" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#nv-brain-pane-axial" aria-controls="nv-brain-pane-axial" aria-selected="true">Axial</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="nv-brain-tab-coronal" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#nv-brain-pane-coronal" aria-controls="nv-brain-pane-coronal" aria-selected="false">Coronal</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="nv-brain-tab-sagittal" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#nv-brain-pane-sagittal" aria-controls="nv-brain-pane-sagittal" aria-selected="false">Sagittal</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="nv-brain-tab-3d" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#nv-brain-pane-3d" aria-controls="nv-brain-pane-3d" aria-selected="false">3D</button>
+    </li>
+  </ul>
+
+  <div class="tab-content nv-brain-viewer__panes" id="nv-brain-tab-content">
+    <div class="tab-pane fade show active" id="nv-brain-pane-axial" role="tabpanel" aria-labelledby="nv-brain-tab-axial" tabindex="0">
+      <div class="nv-img-panel">
+        {% if assets.axial_multiclass_path or assets.axial_overlay_path %}
+          <img src="{{ assets.axial_multiclass_path or assets.axial_overlay_path }}" alt="Axial segmentation" loading="lazy">
+        {% else %}<div class="text-muted small">Axial preview not available.</div>{% endif %}
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nv-brain-pane-coronal" role="tabpanel" aria-labelledby="nv-brain-tab-coronal" tabindex="0">
+      <div class="nv-img-panel">
+        {% if assets.coronal_multiclass_path or assets.coronal_overlay_path %}
+          <img src="{{ assets.coronal_multiclass_path or assets.coronal_overlay_path }}" alt="Coronal segmentation" loading="lazy">
+        {% else %}<div class="text-muted small">Coronal preview not available.</div>{% endif %}
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nv-brain-pane-sagittal" role="tabpanel" aria-labelledby="nv-brain-tab-sagittal" tabindex="0">
+      <div class="nv-img-panel">
+        {% if assets.sagittal_multiclass_path or assets.sagittal_overlay_path %}
+          <img src="{{ assets.sagittal_multiclass_path or assets.sagittal_overlay_path }}" alt="Sagittal segmentation" loading="lazy">
+        {% else %}<div class="text-muted small">Sagittal preview not available.</div>{% endif %}
+      </div>
+    </div>
+    <div class="tab-pane fade" id="nv-brain-pane-3d" role="tabpanel" aria-labelledby="nv-brain-tab-3d" tabindex="0">
+      <div class="nv-viewer-panel">
+        {% if assets.html_3d_path %}
+          <iframe src="{{ assets.html_3d_path }}" loading="lazy" title="3D view"></iframe>
+        {% else %}<div class="text-muted small">3D view not available.</div>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>

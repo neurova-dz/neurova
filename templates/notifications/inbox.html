@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_heading %}Notifications{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="nv-muted m-0">Your latest alerts. Unread items appear highlighted.</p>
+  <form hx-post="{{ url_for('notifications.read_all') }}" hx-swap="none">
+    <button class="nv-btn nv-btn--ghost nv-btn--sm">Mark all as read</button>
+  </form>
+</div>
+
+<div class="nv-card" style="overflow: hidden;">
+  {% if notifs %}
+    {% for notif in notifs %}
+      {% include "components/notification_item.html" %}
+    {% endfor %}
+  {% else %}
+    <div class="nv-card-pad text-muted">No notifications yet.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

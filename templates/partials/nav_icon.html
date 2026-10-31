@@ -1,0 +1,28 @@
+{# Single SVG icon dispatcher for sidebar items. ``item.icon`` selects the path. #}
+<svg class="nv-nav-ico" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+{% if item.icon == 'home' %}
+  <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/>
+{% elif item.icon == 'users' %}
+  <path d="M16 11a4 4 0 1 0-8 0m12 9v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1M12 7v4"/>
+{% elif item.icon == 'queue' %}
+  <path d="M4 6h16v4H4zm0 8h10v4H4zm12 0h4v4h-4z"/>
+{% elif item.icon == 'bell' %}
+  <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14V11a6 6 0 1 0-12 0v3a2 2 0 0 1-.6 1.6L4 17h5m6 0a3 3 0 1 1-6 0"/>
+{% elif item.icon == 'book' %}
+  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+{% elif item.icon == 'user' %}
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+{% elif item.icon == 'cog' %}
+  <circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+{% elif item.icon == 'folder' %}
+  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+{% elif item.icon == 'building' %}
+  <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 9h2m-2 4h2m-2 4h2m4-8h2m-2 4h2m-2 4h2"/>
+{% elif item.icon == 'chart' %}
+  <path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-6"/>
+{% elif item.icon == 'activity' %}
+  <path d="M22 12h-4l-3 9-6-18-3 9H2"/>
+{% else %}
+  <circle cx="12" cy="12" r="3"/>
+{% endif %}
+</svg>

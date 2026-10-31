@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}New analysis{% endblock %}
+{% block page_heading %}New analysis{% endblock %}
+{% block breadcrumbs %}
+<div class="nv-breadcrumb">
+  <a href="{{ url_for('doctor.dashboard') }}">Dashboard</a>
+  &middot; <a href="{{ url_for('doctor.patient_detail', patient_id=folder.patient_id) }}">{{ folder.patient.display_name }}</a>
+  &middot; <a href="{{ url_for('doctor.folder_workspace', folder_id=folder.id) }}">{{ folder.title }}</a>
+  &middot; New analysis
+</div>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10">
+    <div class="nv-card nv-card-pad">
+      <div class="nv-stepper" aria-hidden="true">
+        <span class="nv-step-active"><em>1</em> Upload</span>
+        <span><em>2</em> Pre-treatment</span>
+        <span><em>3</em> Inference</span>
+        <span><em>4</em> Overlays</span>
+        <span><em>5</em> Report</span>
+      </div>
+
+      <h2 class="nv-card-title">{{ folder.title }}</h2>
+      <p class="nv-muted">Patient · {{ folder.patient.display_name }} · MRN {{ folder.patient.mrn or '—' }}</p>
+
+      <form id="nv-upload-form" method="post" action="{{ url_for('exams.create_exam', folder_id=folder.id) }}" enctype="multipart/form-data" class="mt-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="model_type" value="">
+
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            <label class="nv-form-label">Modality</label>
+            <select name="modality" class="nv-select" required>
+              <option value="" disabled {% if not upload_default_modality %}selected{% endif %}>— pick modality —</option>
+              <option value="mri" {% if upload_default_modality == 'mri' or doctor_workflow == 'brain_tumor' %}selected{% endif %}>Brain MRI · 4 NIfTI volumes</option>
+              <option value="retina_fundus" {% if upload_default_modality == 'retina_fundus' or doctor_workflow == 'diabetic_retinopathy' %}selected{% endif %}>Retina fundus · 1 image</option>
+            </select>
+            <p class="text-muted small mt-1" id="nv-modality-hint">Pick the modality first.</p>
+          </div>
+          <div class="nv-form-row" id="nv-laterality-wrap" style="display:none;">
+            <label class="nv-form-label">Laterality</label>
+            <select name="laterality" class="nv-select">
+              <option value="">—</option>
+              <option value="left">Left eye (OS)</option>
+              <option value="right">Right eye (OD)</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="nv-dropzone" class="nv-dropzone mt-2">
+          <p class="nv-dropzone__title">Drop files here or click to browse</p>
+          <p class="nv-dropzone__hint" id="nv-file-summary">No file selected.</p>
+          <input type="file" name="files" id="nv-file-input" multiple style="display:none;">
+        </div>
+
+        <div id="nv-brain-slots" class="nv-shell-grid mt-2" style="display:none;">
+          <div class="span-3"><div class="nv-slot" id="nv-slot-t1c"><span class="nv-slot__tag">T1c</span><span class="nv-slot__file">(missing)</span></div></div>
+          <div class="span-3"><div class="nv-slot" id="nv-slot-t1n"><span class="nv-slot__tag">T1n</span><span class="nv-slot__file">(missing)</span></div></div>
+          <div class="span-3"><div class="nv-slot" id="nv-slot-t2f"><span class="nv-slot__tag">T2-FLAIR</span><span class="nv-slot__file">(missing)</span></div></div>
+          <div class="span-3"><div class="nv-slot" id="nv-slot-t2w"><span class="nv-slot__tag">T2w</span><span class="nv-slot__file">(missing)</span></div></div>
+        </div>
+
+        <div class="nv-form-row mt-3">
+          <label class="nv-form-label">Notes (optional)</label>
+          <textarea class="nv-input" name="notes" rows="3" maxlength="2000" placeholder="Clinical context for this exam"></textarea>
+        </div>
+
+        <button type="submit" class="nv-btn nv-btn--primary">Upload &amp; analyze</button>
+        <a href="{{ url_for('doctor.folder_workspace', folder_id=folder.id) }}" class="nv-btn nv-btn--ghost nv-btn--sm ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Make the dropzone open the hidden input on click; upload.js handles the rest.
+  document.addEventListener("DOMContentLoaded", function () {
+    var dz = document.getElementById("nv-dropzone");
+    var input = document.getElementById("nv-file-input");
+    if (dz && input) {
+      dz.addEventListener("click", function (e) {
+        if (e.target === input) return;
+        input.click();
+      });
+    }
+  });
+</script>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

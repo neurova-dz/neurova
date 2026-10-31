@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Sign in</p>
+      <h2 class="nv-card-title">Welcome back</h2>
+      {% if demo_login_accounts %}
+      <div class="nv-demo-login mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+        <p class="nv-muted small mb-2">Demo — sign in as</p>
+        <div class="d-grid gap-2">
+          {% for a in demo_login_accounts %}
+          <button type="button"
+                  class="nv-btn nv-btn--ghost w-100 nv-demo-login-btn text-start"
+                  data-email="{{ a.email }}"
+                  data-password="{{ a.password }}">
+            <span class="fw-semibold">{{ a.label }}</span>
+            <span class="nv-muted small d-block">{{ a.email }}</span>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <form id="nv-login-form" method="post" novalidate>
+        {{ form.csrf_token }}
+        <div class="nv-form-row">
+          {{ nv_field_label(form.email, label_for="email") }}
+          {{ form.email(id="email", class_="nv-input", autocomplete="username", placeholder="you@clinic.org") }}
+          {% for err in form.email.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.password, label_for="password") }}
+          {{ form.password(id="password", class_="nv-input", autocomplete="current-password") }}
+          {% for err in form.password.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-row d-flex justify-content-between align-items-center">
+          <label class="form-check-label small">
+            {{ form.remember(class_="form-check-input me-2") }} Keep me signed in
+          </label>
+          <a class="small" href="{{ url_for('auth.forgot') }}">Forgot password?</a>
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary w-100">Sign in</button>
+      </form>
+      <p class="nv-muted mt-3 mb-0 text-center small">
+        New clinic? <a href="{{ url_for('auth.register_clinic') }}">Register Your Clinic</a>
+      </p>
+      <p class="nv-muted mt-1 mb-0 text-center small">
+        Doctors join through an invite from their clinic admin.
+      </p>
+    </div>
+  </div>
+</div>
+{% if demo_login_accounts %}
+<script>
+(function () {
+  var form = document.getElementById("nv-login-form");
+  if (!form) return;
+  document.querySelectorAll(".nv-demo-login-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var email = document.getElementById("email");
+      var password = document.getElementById("password");
+      if (!email || !password) return;
+      email.value = btn.getAttribute("data-email") || "";
+      password.value = btn.getAttribute("data-password") || "";
+      form.submit();
+    });
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

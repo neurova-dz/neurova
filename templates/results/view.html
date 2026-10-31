@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Result · #{{ job.id }}{% endblock %}
+{% block page_heading %}Result · #{{ job.id }}{% endblock %}
+{% block content %}
+
+{% set patient = job.exam.folder.patient if job.exam and job.exam.folder else None %}
+{% set modality = (job.model_type.value if job.model_type and job.model_type.value else job.model_type)|replace('_',' ') %}
+
+<div class="nv-card nv-card-pad mb-3 nv-result-page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div class="nv-result-header-main">
+      <div class="d-flex flex-wrap align-items-baseline gap-2">
+        <h2 class="nv-card-title m-0">{{ patient.display_name if patient else 'Patient' }}</h2>
+        <span class="nv-result-job-badge">Job #{{ job.id }}</span>
+      </div>
+      <p class="nv-result-meta-line m-0 mt-2">
+        <span>MRN <strong>{{ patient.mrn or '—' }}</strong></span>
+        <span class="nv-result-meta-sep" aria-hidden="true">·</span>
+        <span><strong>{{ modality }}</strong></span>
+        {% if job.exam and job.exam.exam_date %}
+          <span class="nv-result-meta-sep" aria-hidden="true">·</span>
+          <span>Exam <strong>{{ job.exam.exam_date.strftime('%Y-%m-%d %H:%M') }}</strong></span>
+        {% endif %}
+      </p>
+      <p class="nv-muted small m-0 mt-1">
+        {%- set lat = job.exam.laterality.value if job.exam and job.exam.laterality and job.exam.laterality.value else (job.exam.laterality if job.exam and job.exam.laterality else none) -%}
+        {%- set ref = job.exam.folder.doctor.user.full_name if job.exam and job.exam.folder and job.exam.folder.doctor and job.exam.folder.doctor.user else none -%}
+        {%- if lat %}Laterality {{ lat }}{% endif %}
+        {%- if lat and ref %} · {% elif ref %}{% endif %}
+        {%- if ref %}Referring clinician {{ ref }}{% endif %}
+        {%- if job.compute_device %}{% if lat or ref %} · {% endif %}{{ job.compute_device }}{% endif %}
+        {%- if job.duration_seconds %}{% if lat or ref or job.compute_device %} · {% endif %}{{ job.duration_seconds }} s{% endif %}
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 nv-result-actions">
+      <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('results.job_pdf', job_id=job.id) }}">Export PDF</a>
+      <button type="button" class="nv-btn nv-btn--ghost nv-btn--sm" onclick="window.print()">Print</button>
+      <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.job_result_payload', job_id=job.id) }}" title="Machine-readable payload">JSON</a>
+    </div>
+  </div>
+</div>
+
+<div class="nv-result-shell">
+
+  <div class="nv-result-visual-column d-flex flex-column gap-3">
+    <p class="nv-result-column-label mb-0">Imaging review</p>
+    {% set mt = (job.model_type.value if job.model_type and job.model_type.value else job.model_type) %}
+    {% if mt == 'brain_3d' %}
+      {% include "results/_viewer_brain.html" %}
+    {% else %}
+      {% include "results/_viewer_retina.html" %}
+    {% endif %}
+    {% if compare_jobs %}
+      {% include "results/_compare.html" %}
+    {% endif %}
+  </div>
+
+  <div class="nv-result-clinical d-flex flex-column gap-3">
+    {% include "results/_clinical_panel.html" %}
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.Chart) return;
+    var summary = {{ clinical_summary|tojson }};
+    var metrics = (summary && summary.metrics) || {};
+    var canvas = document.getElementById("chart-metrics");
+    if (!canvas) return;
+
+    function isNumericMetric(x) {
+      return x !== null && x !== undefined && typeof x !== "boolean" && !isNaN(Number(x));
+    }
+
+    if (metrics.probabilities && Object.keys(metrics.probabilities).length) {
+      var labels = [], values = [];
+      Object.keys(metrics.probabilities).forEach(function (k) {
+        labels.push(k);
+        values.push(metrics.probabilities[k]);
+      });
+      new Chart(canvas, {
+        type: "bar",
+        data: { labels: labels, datasets: [{ data: values, backgroundColor: "#0d9488" }] },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+      });
+      return;
+    }
+
+    var mm3 = metrics.lesion_volume_mm3;
+    var cc = metrics.lesion_volume_cc;
+    if (isNumericMetric(mm3) && isNumericMetric(cc)) {
+      new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: ["Lesion volume"],
+          datasets: [
+            { label: "mm³", data: [Number(mm3)], yAxisID: "y", backgroundColor: "#0d9488" },
+            { label: "cc (cm³)", data: [Number(cc)], yAxisID: "y1", backgroundColor: "#2dd4bf" },
+          ],
+        },
+        options: {
+          plugins: { legend: { display: true, position: "bottom" } },
+          scales: {
+            y: {
+              type: "linear",
+              position: "left",
+              beginAtZero: true,
+              title: { display: true, text: "mm³" },
+            },
+            y1: {
+              type: "linear",
+              position: "right",
+              beginAtZero: true,
+              title: { display: true, text: "cc (cm³)" },
+              grid: { drawOnChartArea: false },
+            },
+          },
+        },
+      });
+      return;
+    }
+
+    var labels = [], values = [];
+    ["lesion_volume_mm3", "lesion_volume_cc", "tumor_present"].forEach(function (k) {
+      if (metrics[k] !== undefined && typeof metrics[k] !== "boolean") {
+        labels.push(k);
+        values.push(Number(metrics[k]) || 0);
+      }
+    });
+    if (!labels.length) return;
+    new Chart(canvas, {
+      type: "bar",
+      data: { labels: labels, datasets: [{ data: values, backgroundColor: "#0d9488" }] },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
+  });
+</script>
+{% endblock %}

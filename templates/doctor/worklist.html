@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Worklist{% endblock %}
+{% block page_heading %}Worklist{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+  {% for key, label in [('','All'), ('queued','Queued'), ('running','Running'), ('done','Done'), ('failed','Failed'), ('timed_out','Timed out'), ('cancelled','Cancelled')] %}
+    <a class="nv-btn nv-btn--ghost nv-btn--sm {% if status == key %}is-active{% endif %}" href="{{ url_for('doctor.worklist', status=key) }}">
+      {{ label }} <span class="text-muted">({{ counts.get(key or 'all', 0) }})</span>
+    </a>
+  {% endfor %}
+</div>
+
+<div class="nv-card nv-card-pad">
+  {% if jobs %}
+    <table class="nv-table">
+      <thead><tr><th>Job</th><th>Patient</th><th>Modality</th><th>Status</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+        {% for j in jobs %}
+          <tr>
+            <td>#{{ j.id }}</td>
+            <td>{{ j.exam.folder.patient.display_name if j.exam and j.exam.folder and j.exam.folder.patient else '—' }}</td>
+            <td>{{ (j.model_type.value if j.model_type and j.model_type.value else j.model_type) }}</td>
+            <td><span class="nv-job-status nv-job-status--{{ j.status_value }}">{{ j.status_value }}</span></td>
+            <td class="text-muted small">{{ j.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td><a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Open</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted m-0">Nothing in the queue.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

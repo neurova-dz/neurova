@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.display_name }}{% endblock %}
+{% block page_heading %}{{ patient.display_name }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Demographics</h2>
+      <dl class="row mb-0">
+        <dt class="col-5 text-muted">MRN</dt><dd class="col-7">{{ patient.mrn or '—' }}</dd>
+        <dt class="col-5 text-muted">Sex</dt><dd class="col-7">{{ patient.sex or '—' }}</dd>
+        <dt class="col-5 text-muted">Birth date</dt><dd class="col-7">{{ patient.birth_date or '—' }}</dd>
+        <dt class="col-5 text-muted">Age</dt><dd class="col-7">{{ patient.age_years or '—' }}</dd>
+        <dt class="col-5 text-muted">Phone</dt><dd class="col-7">{{ patient.phone or '—' }}</dd>
+      </dl>
+      {% if patient.clinical_notes %}
+        <hr><p class="text-muted small mb-0">{{ patient.clinical_notes }}</p>
+      {% endif %}
+      <hr>
+      <form method="post" action="{{ url_for('patients.create_folder', patient_id=patient.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="nv-form-row">
+          <label class="nv-form-label">New case title</label>
+          <input class="nv-input" name="title" required maxlength="200">
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label">Context (optional)</label>
+          <textarea class="nv-input" name="diagnosis_context" rows="2"></textarea>
+        </div>
+        <button class="nv-btn nv-btn--primary nv-btn--sm">Open new case</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Cases</h2>
+      {% if folders %}
+        <table class="nv-table">
+          <thead><tr><th>Title</th><th>Owner</th><th>Status</th><th>Updated</th></tr></thead>
+          <tbody>
+            {% for folder in folders %}{% include "components/case_row.html" %}{% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No cases yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="nv-card nv-card-pad mt-3">
+      <h2 class="nv-card-title">Timeline</h2>
+      {% if events %}
+        <ul class="list-unstyled m-0">
+          {% for e in events %}
+            <li class="nv-timeline-item mb-2">
+              <a href="{{ e.link }}">{{ e.title }}</a>
+              <span class="text-muted small d-block">{{ e.ts.strftime('%Y-%m-%d %H:%M') }} · {{ e.kind }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted m-0">No activity yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

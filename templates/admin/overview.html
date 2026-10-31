@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block page_heading %}Overview{% endblock %}
+{% block content %}
+
+<div class="nv-shell-grid mb-3">
+  <div class="span-3">{% with label='Clinics', value=kpis.clinics_total, sub=(kpis.clinics_active|string + ' active') %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Doctors', value=kpis.doctors_total %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Patients', value=kpis.patients_total %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Active folders', value=kpis.active_folders %}{% include "components/stat_card.html" %}{% endwith %}</div>
+
+  <div class="span-3">{% with label='Analyses · 24h', value=kpis.jobs_24h %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Analyses · 7d', value=kpis.jobs_7d %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Analyses · 30d', value=kpis.jobs_30d %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Failed · 30d', value=kpis.jobs_failed_30d, tone=('down' if kpis.jobs_failed_30d else 'flat'), delta='since launch' %}{% include "components/stat_card.html" %}{% endwith %}</div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Analyses per day · last 14 days</h2>
+      <canvas id="chart-jobs" height="100"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Modality split</h2>
+      <canvas id="chart-modality" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="nv-card nv-card-pad mt-3">
+  <h2 class="nv-card-title">Top clinics by activity</h2>
+  {% if top_clinics %}
+    <canvas id="chart-clinics" height="80"></canvas>
+  {% else %}
+    <p class="text-muted">No clinic activity yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!window.Chart) return;
+    var jobsData = {{ chart_jobs|tojson }};
+    var modalityData = {{ chart_modality|tojson }};
+    var clinicData = {{ top_clinics|tojson }};
+
+    new Chart(document.getElementById("chart-jobs"), {
+      type: "line",
+      data: {
+        labels: jobsData.map(function (r) { return r.date; }),
+        datasets: [{
+          label: "Analyses",
+          data: jobsData.map(function (r) { return r.count; }),
+          borderColor: "#0d9488",
+          backgroundColor: "rgba(13,148,136,0.18)",
+          tension: 0.3,
+          fill: true,
+        }],
+      },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, precision: 0 } } },
+    });
+
+    new Chart(document.getElementById("chart-modality"), {
+      type: "doughnut",
+      data: {
+        labels: modalityData.map(function (r) { return r.label; }),
+        datasets: [{ data: modalityData.map(function (r) { return r.count; }), backgroundColor: ["#0d9488","#0891b2","#6d28d9"] }],
+      },
+      options: { plugins: { legend: { position: "bottom" } } },
+    });
+
+    var clinicsCanvas = document.getElementById("chart-clinics");
+    if (clinicsCanvas && clinicData.length) {
+      new Chart(clinicsCanvas, {
+        type: "bar",
+        data: {
+          labels: clinicData.map(function (r) { return r.clinic; }),
+          datasets: [{ label: "Analyses", data: clinicData.map(function (r) { return r.count; }), backgroundColor: "#0d9488" }],
+        },
+        options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, precision: 0 } } },
+      });
+    }
+  });
+</script>
+{% endblock %}

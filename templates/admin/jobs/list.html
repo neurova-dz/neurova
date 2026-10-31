@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Analyses{% endblock %}
+{% block page_heading %}All Analyses{% endblock %}
+{% block content %}
+<form method="get" class="nv-filter-bar">
+  <select class="nv-select" name="status">
+    <option value="">All statuses</option>
+    {% for s in ('queued','running','done','failed','timed_out','cancelled') %}
+      <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <select class="nv-select" name="model_type">
+    <option value="">All modalities</option>
+    <option value="brain_3d" {% if model_type == 'brain_3d' %}selected{% endif %}>Brain MRI</option>
+    <option value="diabetic_retinopathy" {% if model_type == 'diabetic_retinopathy' %}selected{% endif %}>Diabetic retinopathy</option>
+  </select>
+  <select class="nv-select" name="clinic_id">
+    <option value="">All clinics</option>
+    {% for c in clinics %}<option value="{{ c.id }}" {% if clinic_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="nv-btn nv-btn--success nv-btn--sm">Filter</button>
+</form>
+
+<div class="nv-card nv-card-pad">
+  {% if jobs %}
+    <table class="nv-table">
+      <thead><tr><th>#</th><th>Model</th><th>Status</th><th>Progress</th><th>Created</th><th>Patient</th><th></th></tr></thead>
+      <tbody>
+        {% for job in jobs %}
+          <tr>
+            <td>{{ job.id }}</td>
+            <td>{{ (job.model_type.value if job.model_type and job.model_type.value else job.model_type) }}</td>
+            <td><span class="nv-job-status nv-job-status--{{ job.status_value }}">{{ job.status_value }}</span></td>
+            <td>{{ job.progress }}%</td>
+            <td class="text-muted small">{{ job.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ job.exam.folder.patient.display_name if job.exam and job.exam.folder and job.exam.folder.patient else '—' }}</td>
+            <td>
+              <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=job.id) }}">Open</a>
+              {% if job.status_value in ('failed','timed_out','cancelled') %}
+                <form method="post" action="{{ url_for('admin.job_requeue', job_id=job.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="nv-btn nv-btn--ghost nv-btn--sm">Re-queue</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted m-0">No jobs match.</p>
+  {% endif %}
+</div>
+{% endblock %}

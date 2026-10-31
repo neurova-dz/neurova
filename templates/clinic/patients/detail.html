@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.display_name }}{% endblock %}
+{% block page_heading %}{{ patient.display_name }}{% endblock %}
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Demographics</h2>
+      <dl class="row mb-0">
+        <dt class="col-5 text-muted">MRN</dt><dd class="col-7">{{ patient.mrn or '—' }}</dd>
+        <dt class="col-5 text-muted">Sex</dt><dd class="col-7">{{ patient.sex or '—' }}</dd>
+        <dt class="col-5 text-muted">Birth date</dt><dd class="col-7">{{ patient.birth_date or '—' }}</dd>
+        <dt class="col-5 text-muted">Age</dt><dd class="col-7">{{ patient.age_years or '—' }}</dd>
+        <dt class="col-5 text-muted">Phone</dt><dd class="col-7">{{ patient.phone or '—' }}</dd>
+      </dl>
+      {% if patient.clinical_notes %}
+        <hr>
+        <h3 class="h6">Clinical notes</h3>
+        <p class="text-muted small mb-0">{{ patient.clinical_notes }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Cases</h2>
+      {% if folders %}
+        <table class="nv-table">
+          <thead><tr><th>Title</th><th>Owner</th><th>Status</th><th>Updated</th></tr></thead>
+          <tbody>
+            {% for folder in folders %}
+              {% include "components/case_row.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No cases yet for this patient.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

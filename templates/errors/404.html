@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Not found{% endblock %}
+{% block page_heading %}Page not found{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad nv-empty-state">
+  <h2 class="nv-card-title">We could not find that page</h2>
+  <p class="nv-muted mb-4">The URL may be mistyped, or the resource was removed.</p>
+  {% if current_user.is_authenticated %}
+    <a class="nv-btn nv-btn--primary" href="{{ url_for('site.dashboard') }}">Back to dashboard</a>
+  {% else %}
+    <a class="nv-btn nv-btn--primary" href="{{ url_for('site.landing') }}">Home</a>
+  {% endif %}
+</div>
+{% endblock %}

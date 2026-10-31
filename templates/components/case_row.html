@@ -1,0 +1,12 @@
+{# Case (folder) row used in tables. Caller passes ``folder``. #}
+<tr>
+  <td>
+    <a href="{{ url_for('doctor.folder_workspace', folder_id=folder.id) }}">
+      {{ folder.title }}
+    </a>
+    <div class="text-muted small">{{ folder.patient.display_name if folder.patient else '—' }}</div>
+  </td>
+  <td><span class="nv-job-status nv-job-status--{{ folder.status }}">{{ folder.status|replace('_',' ') }}</span></td>
+  <td>{{ folder.assigned_doctor.user.full_name if folder.assigned_doctor else (folder.doctor.user.full_name if folder.doctor else '—') }}</td>
+  <td class="text-muted small">{{ folder.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+</tr>

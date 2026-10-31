@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}New patient{% endblock %}
+{% block page_heading %}New patient{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad" style="max-width: 720px;">
+  <form method="post" x-data="{ birth: '{{ form.birth_date.data or '' }}' }">
+    {{ form.csrf_token }}
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        {{ nv_field_label(form.first_name) }}
+        {{ form.first_name(class_="nv-input") }}
+        {% for err in form.first_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+      </div>
+      <div class="nv-form-row">
+        {{ nv_field_label(form.last_name) }}
+        {{ form.last_name(class_="nv-input") }}
+        {% for err in form.last_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+      </div>
+    </div>
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        {{ nv_field_label(form.sex) }}
+        {{ form.sex(class_="nv-select") }}
+      </div>
+      <div class="nv-form-row">
+        {{ nv_field_label(form.birth_date) }}
+        {{ form.birth_date(class_="nv-input", type="date", x_model="birth") }}
+        <small class="text-muted" x-show="birth">Age: <span x-text="(new Date().getFullYear() - parseInt(birth.slice(0,4),10)) || ''"></span></small>
+        {% for err in form.birth_date.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+      </div>
+    </div>
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        {{ nv_field_label(form.mrn) }}
+        {{ form.mrn(class_="nv-input") }}
+      </div>
+      <div class="nv-form-row">
+        {{ nv_field_label(form.phone) }}
+        {{ form.phone(class_="nv-input") }}
+      </div>
+    </div>
+    <div class="nv-form-row">
+      {{ nv_field_label(form.clinical_notes) }}
+      {{ form.clinical_notes(class_="nv-input", rows=4) }}
+    </div>
+    <button class="nv-btn nv-btn--primary">Create patient</button>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm ms-2"
+       href="{% if cancel_url is defined %}{{ cancel_url }}{% else %}{{ url_for('clinic.patients_list') }}{% endif %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

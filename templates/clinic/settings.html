@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Clinic Settings{% endblock %}
+{% block page_heading %}Clinic Settings{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad" style="max-width: 820px;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        <label class="nv-form-label">Clinic / Hospital Name</label>
+        <input class="nv-input" name="name" value="{{ clinic.name }}" maxlength="200" required>
+      </div>
+      <div class="nv-form-row">
+        <label class="nv-form-label">Clinic Contact Email</label>
+        <input class="nv-input" type="email" name="email" value="{{ clinic.email or '' }}" maxlength="180">
+      </div>
+    </div>
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        <label class="nv-form-label">Clinic Phone</label>
+        <input class="nv-input" name="phone" value="{{ clinic.phone or '' }}" maxlength="40">
+      </div>
+      <div class="nv-form-row">
+        <label class="nv-form-label">Country</label>
+        <input class="nv-input" name="country" value="{{ clinic.country or '' }}" maxlength="80">
+      </div>
+    </div>
+    <div class="nv-form-row">
+      <label class="nv-form-label">Address</label>
+      <input class="nv-input" name="address" value="{{ clinic.address or '' }}" maxlength="500">
+    </div>
+    <div class="nv-form-grid nv-form-grid--2">
+      <div class="nv-form-row">
+        <label class="nv-form-label">Time Zone</label>
+        {% set tz_selected = clinic.timezone if clinic.timezone else default_clinic_timezone %}
+        <select class="nv-select" name="timezone">
+          {% for tz in timezone_choices %}
+          <option value="{{ tz }}" {% if tz == tz_selected %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+        <p class="nv-muted small mb-0 mt-1">IANA zone ID (e.g. <code>Africa/Algiers</code> for Algeria).</p>
+      </div>
+      <div class="nv-form-row">
+        <label class="nv-form-label">Default Modality</label>
+        {% set sj = clinic.settings_json or {} %}
+        <select class="nv-select" name="default_modality">
+          <option value="" {% if not sj.default_modality %}selected{% endif %}>—</option>
+          <option value="mri" {% if sj.default_modality == 'mri' %}selected{% endif %}>Brain MRI</option>
+          <option value="retina_fundus" {% if sj.default_modality == 'retina_fundus' %}selected{% endif %}>Retina fundus</option>
+        </select>
+      </div>
+    </div>
+    <button class="nv-btn nv-btn--primary">Save settings</button>
+  </form>
+</div>
+{% endblock %}

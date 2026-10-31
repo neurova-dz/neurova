@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Today{% endblock %}
+{% block content %}
+
+<div class="nv-shell-grid mb-3">
+  <div class="span-3">{% with label='Open cases', value=open_folders|length %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Follow-ups', value=follow_ups|length %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Pending analyses', value=pending_jobs %}{% include "components/stat_card.html" %}{% endwith %}</div>
+  <div class="span-3">{% with label='Unread alerts', value=nv_unread_count %}{% include "components/stat_card.html" %}{% endwith %}</div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="nv-card-title m-0">My active cases</h2>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('doctor.patients') }}">All patients</a>
+      </div>
+      {% if open_folders %}
+        <table class="nv-table">
+          <thead><tr><th>Case</th><th>Status</th><th>Owner</th><th>Updated</th></tr></thead>
+          <tbody>
+            {% for folder in open_folders %}{% include "components/case_row.html" %}{% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No open cases. <a href="{{ url_for('doctor.patients') }}">Browse patients</a> to start a new case.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Recent analyses</h2>
+      {% if recent_jobs %}
+        <ul class="list-unstyled m-0">
+          {% for j in recent_jobs %}
+            <li class="nv-timeline-item mb-2">
+              <a href="{{ url_for('results.view_result', job_id=j.id) }}">
+                #{{ j.id }} · {{ (j.model_type.value if j.model_type and j.model_type.value else j.model_type) }} ·
+                <span class="nv-job-status nv-job-status--{{ j.status_value }}">{{ j.status_value }}</span>
+              </a>
+              <span class="text-muted small d-block">{{ j.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ j.exam.folder.patient.display_name if j.exam and j.exam.folder and j.exam.folder.patient else '—' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted m-0">No analyses yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="nv-card nv-card-pad">
+  <h2 class="nv-card-title">Quick actions</h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('doctor.patients') }}">Find a patient</a>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('doctor.worklist') }}">My worklist</a>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('notifications.inbox') }}">Notifications</a>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('site.resources') }}">Resources</a>
+  </div>
+</div>
+
+{% endblock %}

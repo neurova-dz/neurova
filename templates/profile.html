@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_heading %}Your profile{% endblock %}
+{% block breadcrumbs %}
+<div class="nv-breadcrumb">
+  <a href="{{ url_for('site.dashboard') }}">Dashboard</a>
+  &middot; Profile
+</div>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Clinician details</h2>
+      <p class="nv-card-sub nv-mt-0">Shown to colleagues in your clinic where the app displays your name.</p>
+      <form method="post" action="{{ url_for('site.profile') }}">
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="full_name">Full name</label>
+          <input id="full_name" class="nv-input" name="full_name" value="{{ current_user.full_name }}" required />
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="title">Title</label>
+            <input id="title" class="nv-input" name="title" value="{{ current_user.title or '' }}" placeholder="e.g. Dr., Prof." />
+          </div>
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="phone">Phone</label>
+            <input id="phone" class="nv-input" name="phone" value="{{ current_user.phone or '' }}" />
+          </div>
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="locale">Locale</label>
+            <input id="locale" class="nv-input" name="locale" value="{{ current_user.locale or '' }}" placeholder="e.g. en-US" />
+          </div>
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="specialty">Primary workflow</label>
+            <select id="specialty" class="nv-select" name="specialty">
+              <option value="brain_tumor" {% if doctor_workflow == 'brain_tumor' %}selected{% endif %}>Brain tumor · MRI</option>
+              <option value="diabetic_retinopathy" {% if doctor_workflow == 'diabetic_retinopathy' %}selected{% endif %}>Diabetic retinopathy · Fundus</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary">Save profile</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad mb-4">
+      <h2 class="nv-card-title">Clinic</h2>
+      <p class="mb-2"><span class="nv-muted">Practice</span><br /><strong>{{ clinic.name if clinic else '—' }}</strong></p>
+      <p class="nv-muted small mb-0">Patients and cases are scoped to this clinic. Share individual folders with colleagues from the patient record.</p>
+    </div>
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Account</h2>
+      <p class="mb-2"><span class="nv-muted">Email</span><br /><strong>{{ current_user.email }}</strong></p>
+      <p class="mb-0"><span class="nv-muted">Doctor ID</span><br /><strong>#{{ current_user.id }}</strong></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{# Clinical panel — concise hierarchy for clinicians; avoid duplicating impression vs. system label. #}
+{% set impression = (clinical_summary.impression or '')|trim %}
+{% set sys_label = (result.diagnosis_label or '')|trim %}
+{% set label_differs = sys_label and (sys_label|lower != impression|lower) %}
+
+<div class="nv-card nv-card-pad nv-result-clinical-hero">
+  <p class="nv-panel-title m-0">Clinical summary</p>
+  <p class="nv-result-hero-text m-0 mt-2">{{ clinical_summary.impression or '—' }}</p>
+  <div class="nv-result-focus-strip mt-3 pt-3">
+    {% if result.confidence is not none %}
+      <div class="nv-result-focus-item">
+        <span class="nv-result-focus-label">Model confidence</span>
+        <span class="nv-result-confidence">
+          {% set c = result.confidence %}
+          {% if c >= 0 and c <= 1 %}{{ (c * 100)|round(1) }}%<span class="nv-result-confidence-sub">({{ "%.3f"|format(c) }})</span>{% else %}{{ "%.3f"|format(c) }}{% endif %}
+        </span>
+      </div>
+    {% endif %}
+    {% if label_differs %}
+      <div class="nv-result-focus-item nv-result-focus-item--secondary">
+        <span class="nv-result-focus-label">System classification</span>
+        <span class="nv-result-focus-value">{{ result.diagnosis_label }}</span>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="nv-card nv-card-pad">
+  <p class="nv-panel-title m-0">Supporting narrative</p>
+  <p class="nv-result-body m-0 mt-2">{{ clinical_summary.findings or '—' }}</p>
+</div>
+
+{% if clinical_summary.metrics %}
+  <div class="nv-card nv-card-pad">
+    <p class="nv-panel-title m-0">Quantitative output</p>
+    <p class="nv-muted small m-0 mt-1">From automated segmentation — verify against source imaging.</p>
+    <div class="mt-3">
+      {% for key, value in clinical_summary.metrics.items() %}
+        {% if value is mapping %}
+          {% for sk, sv in value.items() %}
+            <div class="nv-metric-row nv-metric-row--clinical">
+              <span class="nv-metric-label">{{ key }}.{{ sk }}</span>
+              <strong class="nv-metric-value">{% if sv is number %}{{ "%.3f"|format(sv) }}{% else %}{{ sv }}{% endif %}</strong>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="nv-metric-row nv-metric-row--clinical">
+            <span class="nv-metric-label">
+              {% if key == 'tumor_present' %}Lesion detected (model){% elif key == 'lesion_volume_mm3' %}Lesion volume (mm³){% elif key == 'lesion_volume_cc' %}Lesion volume (cm³){% elif key == 'class_id' %}Predicted class{% else %}{{ key|replace('_',' ') }}{% endif %}
+            </span>
+            <strong class="nv-metric-value">
+              {% if value is none %}—
+              {% elif value is sameas true %}Yes
+              {% elif value is sameas false %}No
+              {% elif value is number %}{{ "%.3f"|format(value) }}
+              {% else %}{{ value }}
+              {% endif %}
+            </strong>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <canvas id="chart-metrics" height="180" class="mt-3 w-100" aria-label="Metrics chart"></canvas>
+  </div>
+{% endif %}
+
+{% if helper_block %}
+  <div class="nv-card nv-card-pad nv-result-helper">
+    <p class="nv-panel-title m-0">Context &amp; differential hints</p>
+    {% if helper_block.suggestions %}
+      <ul class="mb-2 mt-2">{% for s in helper_block.suggestions %}<li>{{ s }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if helper_block.delta %}
+      <p class="text-muted small m-0">{{ helper_block.delta }}</p>
+    {% endif %}
+    {% if helper_block.history %}
+      <p class="text-muted small mb-1 mt-2">Prior analyses (this modality)</p>
+      <ul class="mb-0">
+        {% for h in helper_block.history %}
+          <li class="text-muted small">{{ h.date[:10] if h.date else '—' }} — {{ h.diagnosis_label or 'class ' ~ (h.class_id|default('?')) }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <p class="nv-muted small mt-2 mb-0">Heuristic suggestions only — not a diagnosis.</p>
+  </div>
+{% endif %}
+
+<details class="nv-card nv-card-pad nv-result-technical">
+  <summary class="nv-result-technical-summary">Technical payload (JSON)</summary>
+  <p class="nv-muted small mb-2">For audit, integration, or support — not intended for clinical interpretation.</p>
+  <p class="nv-result-technical-disclaimer small mb-2">{{ clinical_summary.disclaimer or 'Assistive software only; not a substitute for clinical judgment.' }}</p>
+  <pre class="nv-muted small mb-0" style="white-space: pre-wrap; max-height: 320px; overflow: auto;">{{ result.report_json|tojson(indent=2) if result else '{}' }}</pre>
+</details>

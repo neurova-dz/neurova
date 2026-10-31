@@ -1,0 +1,10 @@
+Hello {{ invitation.full_name or invitation.email }},
+
+You have been invited to join {{ invitation.clinic.name if invitation.clinic else 'NEUROVA' }} as a {{ invitation.role }}.
+
+Activate your account by visiting:
+{{ invite_url }}
+
+This link will expire on {{ invitation.expires_at.strftime('%Y-%m-%d %H:%M UTC') }}.
+
+— NEUROVA

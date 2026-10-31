@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Resources{% endblock %}
+{% block page_heading %}Resources{% endblock %}
+{% block content %}
+<p class="nv-section-heading">Clinical workflows</p>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Your workflow</h2>
+      {% if doctor_workflow == 'brain_tumor' %}
+        <p class="nv-card-sub nv-mt-0">Brain MRI &middot; 3D tumor segmentation pipeline.</p>
+        <ol class="nv-muted small ps-3 mb-0">
+          <li class="mb-2">Register patients under <a href="{{ url_for('patients.list_patients') }}">Patients</a>.</li>
+          <li class="mb-2">Open the patient and create a medical folder for the encounter.</li>
+          <li class="mb-2">Upload an exam with the four required MRI sequences.</li>
+          <li>Track jobs on <a href="{{ nv_site('pipeline') }}">Pipeline</a>; open completed runs from the results viewer.</li>
+        </ol>
+      {% elif doctor_workflow == 'diabetic_retinopathy' %}
+        <p class="nv-card-sub nv-mt-0">Fundus imaging &middot; diabetic retinopathy grading.</p>
+        <ol class="nv-muted small ps-3 mb-0">
+          <li class="mb-2">Register patients under <a href="{{ url_for('patients.list_patients') }}">Patients</a>.</li>
+          <li class="mb-2">Create a folder and upload a fundus image as the exam.</li>
+          <li class="mb-2">Monitor progress on <a href="{{ nv_site('pipeline') }}">Pipeline</a>.</li>
+          <li>Review grading output in the result view when status is done.</li>
+        </ol>
+      {% else %}
+        <p class="nv-card-sub nv-mt-0">Specialty not set — uploads may require manual modality selection.</p>
+        <p class="nv-muted small mb-0">See <a href="{{ url_for('site.settings') }}">Settings</a> for how specialty is determined in this demo.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Intent &amp; safety</h2>
+      <p class="nv-card-sub nv-mt-0">NEUROVA is clinical decision support, not a standalone diagnostic.</p>
+      <ul class="nv-muted small ps-3 mb-0">
+        <li class="mb-2">Validate model outputs against source imaging and your institutional protocols.</li>
+        <li class="mb-2">Do not use for emergency triage or as the sole basis for treatment decisions.</li>
+        <li>Use <a href="{{ nv_site('activity') }}">Activity</a> to review logged events tied to your account.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Shortcuts</h2>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('site.dashboard') }}">Dashboard</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ nv_site('pipeline') }}">Pipeline</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('patients.list_patients') }}">Patients</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('site.settings') }}">Settings</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

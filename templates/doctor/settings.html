@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_heading %}Settings{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad" style="max-width: 720px;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="nv-form-row">
+      <label class="nv-form-label">Default upload modality</label>
+      <select class="nv-select" name="default_modality">
+        <option value="" {% if not prefs.default_modality %}selected{% endif %}>—</option>
+        <option value="mri" {% if prefs.default_modality == 'mri' %}selected{% endif %}>Brain MRI</option>
+        <option value="retina_fundus" {% if prefs.default_modality == 'retina_fundus' %}selected{% endif %}>Retina fundus</option>
+      </select>
+    </div>
+    <div class="nv-form-row">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input me-2" name="compact_results" {% if prefs.compact_results %}checked{% endif %}>
+        Compact results layout
+      </label>
+    </div>
+    <button class="nv-btn nv-btn--primary">Save settings</button>
+  </form>
+</div>
+{% endblock %}

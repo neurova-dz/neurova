@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Worklist{% endblock %}
+{% block page_heading %}Inference worklist{% endblock %}
+{% block content %}
+<p class="nv-section-heading">Job queue</p>
+<p class="nv-muted mb-4">
+  Filter and open inference jobs for your account. New uploads are created from a patient’s folder — see <a href="{{ url_for('patients.list_patients') }}">Patients</a>.
+</p>
+
+<div class="nv-filter-row d-flex flex-wrap gap-2 mb-4">
+  {% set sf = status_filter %}
+  <a class="nv-btn nv-btn--sm {% if not sf %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline') }}">All <span class="nv-muted">({{ status_counts.all }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'queued' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='queued') }}">Queued <span class="nv-muted">({{ status_counts.queued }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'running' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='running') }}">Running <span class="nv-muted">({{ status_counts.running }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'done' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='done') }}">Done <span class="nv-muted">({{ status_counts.done }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'failed' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='failed') }}">Failed <span class="nv-muted">({{ status_counts.failed }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'timed_out' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='timed_out') }}">Timed out <span class="nv-muted">({{ status_counts.timed_out }})</span></a>
+  <a class="nv-btn nv-btn--sm {% if sf == 'cancelled' %}nv-btn--primary{% else %}nv-btn--ghost{% endif %}" href="{{ nv_site('pipeline', status='cancelled') }}">Cancelled <span class="nv-muted">({{ status_counts.cancelled }})</span></a>
+</div>
+
+<div class="nv-card nv-card-pad">
+  <div class="nv-split mb-3">
+    <div>
+      <h2 class="nv-card-title">Cases</h2>
+      <p class="nv-card-sub nv-mt-0">Newest first (up to 100 rows).</p>
+    </div>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('site.dashboard') }}">Dashboard overview</a>
+  </div>
+
+  {% if jobs %}
+  <div class="nv-table-wrap">
+    <table class="nv-table">
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>Patient &amp; folder</th>
+          <th>Model</th>
+          <th>Queued</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for j in jobs %}
+        <tr>
+          <td><strong>#{{ j.id }}</strong></td>
+          <td>
+            <a href="{{ url_for('patients.view_patient', patient_id=j.exam.folder.patient_id) }}">
+              {{ j.exam.folder.patient.first_name }} {{ j.exam.folder.patient.last_name }}
+            </a>
+            <span class="d-block nv-muted small">{{ j.exam.folder.title }}</span>
+          </td>
+          <td>
+            {% if j.model_type == 'brain_3d' %}
+              <span class="nv-badge nv-badge--info">Brain 3D</span>
+            {% else %}
+              <span class="nv-badge nv-badge--muted">DR grade</span>
+            {% endif %}
+          </td>
+          <td class="nv-muted small">{{ j.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</td>
+          <td>
+            <span class="nv-job-status nv-job-status--{{ j.status }}">{{ j.status }}</span>
+          </td>
+          <td class="text-end">
+            {% if j.status == 'done' %}
+              <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Open result</a>
+            {% elif j.status in ('queued', 'running') %}
+              <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Track</a>
+            {% else %}
+              <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Details</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="nv-muted mb-0">
+      {% if status_filter %}
+        No jobs in this state. <a href="{{ nv_site('pipeline') }}">Clear filter</a> or upload an exam from a patient folder.
+      {% else %}
+        No inference jobs yet. Create a patient, open a folder, then upload imaging to enqueue the model.
+      {% endif %}
+    </p>
+  {% endif %}
+</div>
+{% endblock %}

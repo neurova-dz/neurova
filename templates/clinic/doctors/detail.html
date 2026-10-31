@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ doctor.user.full_name }}{% endblock %}
+{% block page_heading %}{{ doctor.user.full_name }}{% endblock %}
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Profile</h2>
+      <dl class="row mb-0">
+        <dt class="col-5 text-muted">Email</dt><dd class="col-7">{{ doctor.user.email }}</dd>
+        <dt class="col-5 text-muted">Specialty</dt><dd class="col-7">{{ doctor.specialty or '—' }}</dd>
+        <dt class="col-5 text-muted">Title</dt><dd class="col-7">{{ doctor.title or '—' }}</dd>
+        <dt class="col-5 text-muted">Phone</dt><dd class="col-7">{{ doctor.phone or '—' }}</dd>
+        <dt class="col-5 text-muted">Status</dt>
+        <dd class="col-7">{% if doctor.user.is_active_account %}<span class="nv-job-status nv-job-status--done">active</span>{% else %}<span class="nv-job-status nv-job-status--cancelled">disabled</span>{% endif %}</dd>
+        <dt class="col-5 text-muted">Created</dt><dd class="col-7">{{ doctor.created_at.strftime('%Y-%m-%d') }}</dd>
+      </dl>
+      <hr>
+      <form method="post" action="{{ url_for('clinic.doctor_toggle_active', doctor_id=doctor.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if doctor.user.is_active_account %}
+          <button class="nv-btn nv-btn--ghost nv-btn--sm">Disable account</button>
+        {% else %}
+          <button class="nv-btn nv-btn--primary nv-btn--sm">Reactivate account</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Open cases</h2>
+      {% if open_folders %}
+        <table class="nv-table">
+          <thead><tr><th>Case</th><th>Patient</th><th>Status</th><th>Updated</th></tr></thead>
+          <tbody>
+            {% for folder in open_folders %}
+              {% include "components/case_row.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted m-0">No open cases.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

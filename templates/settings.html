@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_heading %}Settings{% endblock %}
+{% block breadcrumbs %}
+<div class="nv-breadcrumb">
+  <a href="{{ url_for('site.dashboard') }}">Dashboard</a>
+  &middot; Settings
+</div>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Clinic</h2>
+      <p class="mb-2"><span class="nv-muted">Practice name</span><br /><strong>{{ clinic.name if clinic else '—' }}</strong></p>
+      <p class="nv-card-sub nv-mt-0">Colleagues in the same clinic can receive shared access to specific folders only.</p>
+      {% if colleagues %}
+      <p class="nv-muted small mb-1">Directory</p>
+      <ul class="small mb-0 ps-3">
+        {% for c in colleagues %}
+        <li>{{ c.full_name }} <span class="nv-muted">({{ c.email }})</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="nv-muted small mb-0">No other doctors registered in this clinic yet.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Settings</h2>
+      <form method="post" action="{{ url_for('site.settings') }}">
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="default_modality">Default Modality (mixed workflow)</label>
+          <select id="default_modality" class="nv-select" name="default_modality">
+            <option value="" {% if not prefs.get('default_modality') %}selected{% endif %}>No default</option>
+            <option value="mri" {% if prefs.get('default_modality') == 'mri' %}selected{% endif %}>MRI</option>
+            <option value="ultrasound" {% if prefs.get('default_modality') == 'ultrasound' %}selected{% endif %}>Ultrasound</option>
+            <option value="retina_fundus" {% if prefs.get('default_modality') == 'retina_fundus' %}selected{% endif %}>Retina fundus</option>
+          </select>
+        </div>
+        <div class="nv-form-row">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="compact_results" id="compact_results" {% if prefs.get('compact_results') %}checked{% endif %} />
+            <label class="form-check-label" for="compact_results">Compact Results Layout (when supported)</label>
+          </div>
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary">Save settings</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Registered specialty</h2>
+      <p class="nv-card-sub nv-mt-0">Controls upload defaults and inference routing.</p>
+      {% if doctor_workflow == 'brain_tumor' %}
+        <p class="mb-2"><span class="nv-badge nv-badge--info">Brain tumor &middot; MRI</span></p>
+        <p class="nv-muted mb-0">Upload UI expects four MRI volumes and runs the 3D brain segmentation pipeline.</p>
+      {% elif doctor_workflow == 'diabetic_retinopathy' %}
+        <p class="mb-2"><span class="nv-badge nv-badge--muted">Diabetic retinopathy &middot; Fundus</span></p>
+        <p class="nv-muted mb-0">Upload UI expects a single fundus image and DR grading.</p>
+      {% else %}
+        <p class="mb-2"><span class="nv-badge nv-badge--warn">Not set</span></p>
+        <p class="nv-muted mb-0">Set your primary workflow under <a href="{{ url_for('site.profile') }}">Profile</a>.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="nv-card nv-card-pad h-100">
+      <h2 class="nv-card-title">Pipeline overview</h2>
+      <p class="nv-muted small mb-2">Across folders you can access: <strong>{{ total_scans }}</strong> exams, <strong>{{ completed_cases }}</strong> completed analyses, <strong>{{ pending_cases }}</strong> queued or running.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ nv_site('pipeline') }}">Open worklist</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('patients.list_patients') }}">Patients</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('site.profile') }}">Profile</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

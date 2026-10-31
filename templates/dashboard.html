@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block content %}
+<p class="nv-section-heading">Today</p>
+<div class="nv-grid nv-grid--stats">
+  <div class="nv-card nv-stat">
+    <span class="nv-stat-label">Total scans</span>
+    <span class="nv-stat-value">{{ total_scans }}</span>
+    <span class="nv-stat-meta">Imaging exams across your patient folders</span>
+  </div>
+  <div class="nv-card nv-stat">
+    <span class="nv-stat-label">Completed analyses</span>
+    <span class="nv-stat-value">{{ completed_cases }}</span>
+    <span class="nv-stat-meta">Analyses completed successfully</span>
+  </div>
+  <div class="nv-card nv-stat">
+    <span class="nv-stat-label">In progress</span>
+    <span class="nv-stat-value">{{ pending_cases }}</span>
+    <span class="nv-stat-meta">Queued or running pipelines</span>
+  </div>
+  <div class="nv-card nv-stat">
+    <span class="nv-stat-label">Workflow</span>
+    <span class="nv-stat-value" style="font-size: 1.1rem;">
+      {% if doctor_workflow == 'brain_tumor' %}Brain MRI{% elif doctor_workflow == 'diabetic_retinopathy' %}Retina{% else %}Mixed{% endif %}
+    </span>
+    <span class="nv-stat-meta">Based on your registered specialty</span>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="nv-card nv-card-pad">
+      <div class="nv-split">
+        <div>
+          <h2 class="nv-card-title">Recent analyses</h2>
+          <p class="nv-card-sub nv-mt-0">Latest imaging analyses across your patients.</p>
+        </div>
+        <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('patients.list_patients') }}">All patients</a>
+      </div>
+      {% if recent_jobs %}
+      <div class="nv-table-wrap">
+        <table class="nv-table">
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Model</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for j in recent_jobs %}
+            <tr>
+              <td>
+                <strong>#{{ j.id }}</strong>
+                <span class="d-block nv-muted small">
+                  {{ j.exam.folder.patient.first_name }} {{ j.exam.folder.patient.last_name }} &middot; {{ j.exam.folder.title }}
+                </span>
+              </td>
+              <td>
+                {% if j.model_type == 'brain_3d' %}
+                  <span class="nv-badge nv-badge--info">Brain 3D</span>
+                {% else %}
+                  <span class="nv-badge nv-badge--muted">DR grade</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="nv-job-status nv-job-status--{{ j.status }}">{{ j.status }}</span>
+              </td>
+              <td class="text-end">
+                {% if j.status == 'done' %}
+                  <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Open</a>
+                {% elif j.status in ('queued', 'running') %}
+                  <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">Track</a>
+                {% else %}
+                  <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('results.view_result', job_id=j.id) }}">View</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="nv-muted mb-0">No analyses yet. Create a patient, open a folder, then upload an exam.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="nv-card nv-card-pad mb-4">
+      <h2 class="nv-card-title">Your clinic</h2>
+      <p class="mb-2"><strong>{{ clinic.name if clinic else '—' }}</strong></p>
+      {% if colleagues %}
+      <p class="nv-muted small mb-1">Colleagues</p>
+      <ul class="small mb-0 ps-3">
+        {% for c in colleagues %}
+        <li>{{ c.full_name }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="nv-muted small mb-0">No other doctors in this clinic yet.</p>
+      {% endif %}
+    </div>
+    <div class="nv-card nv-card-pad mb-4">
+      <h2 class="nv-card-title">Quick actions</h2>
+      <p class="nv-card-sub">Continue reviewing patients or adjust your workflow preferences.</p>
+      <div class="d-grid gap-2">
+        <a class="nv-btn nv-btn--primary" href="{{ url_for('patients.list_patients') }}">Manage patients</a>
+        <a class="nv-btn nv-btn--ghost" href="{{ url_for('site.settings') }}">Account &amp; workflow</a>
+      </div>
+    </div>
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Study throughput</h2>
+      <p class="nv-card-sub">Illustrative trend — connect to your analytics backend when ready.</p>
+      <div class="nv-sparkline-wrap">
+        <svg viewBox="0 0 320 96" width="100%" height="96" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="nvSpark" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d9488" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,70 L40,55 L80,62 L120,40 L160,48 L200,30 L240,38 L280,22 L320,28 L320,96 L0,96 Z" fill="url(#nvSpark)"/>
+          <path d="M0,70 L40,55 L80,62 L120,40 L160,48 L200,30 L240,38 L280,22 L320,28" fill="none" stroke="#0f766e" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

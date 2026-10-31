@@ -1,0 +1,19 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/fetmhtxc/public_html/neurova"
+PassengerBaseURI "/neurova"
+PassengerPython "/home/fetmhtxc/virtualenv/public_html/neurova/3.11/bin/python"
+PassengerAppLogFile "/home/fetmhtxc/public_html/neurova/passenger.log"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+SetEnv SECRET_KEY CHANGE-ME
+SetEnv DATABASE_URL mysql+pymysql://neurova_user:neurova_password@localhost/neurova_db
+SetEnv BRAIN_MODEL_PATH storage/models/brain/model_phase_1.keras
+SetEnv RETINA_MODEL_PATH storage/models/retina/best_pytorch_h100_aptos.pth
+SetEnv RETINE_THRESHOLDS_PATH storage/models/retina/best_thresholds.csv
+SetEnv UPLOAD_FOLDER storage/uploads
+SetEnv CELERY_BROKER_URL redis://localhost:6379/0
+SetEnv RESULTS_FOLDER storage/RESULTS
+SetEnv CELERY_RESULT_BACKEND redis://localhost:6379/1
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

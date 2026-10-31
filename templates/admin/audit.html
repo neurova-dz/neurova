@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Audit {% endblock %}
+{% block page_heading %}Audit log{% endblock %}
+{% block content %}
+<form method="get" class="nv-filter-bar">
+  <input class="nv-input" name="q" value="{{ q }}" placeholder="Event type contains…">
+  <select class="nv-select" name="clinic_id">
+    <option value="">All clinics</option>
+    {% for c in clinics %}<option value="{{ c.id }}" {% if clinic_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="nv-btn nv-btn--success nv-btn--sm">Filter</button>
+</form>
+
+<div class="nv-card nv-card-pad">
+  {% if entries %}
+    <table class="nv-table">
+      <thead><tr><th>When</th><th>Event</th><th>Actor</th><th>Clinic</th><th>Resource</th><th>IP</th></tr></thead>
+      <tbody>
+        {% for e in entries %}
+          <tr>
+            <td class="text-muted small">{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td><strong>{{ e.event_type }}</strong></td>
+            <td>{{ e.actor.email if e.actor else '—' }}</td>
+            <td>{{ e.clinic.name if e.clinic else '—' }}</td>
+            <td class="text-muted small">{{ e.resource_type or '' }} {{ e.resource_id or '' }}</td>
+            <td class="text-muted small">{{ e.ip_address or '' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted m-0">No audit entries match.</p>
+  {% endif %}
+</div>
+{% endblock %}

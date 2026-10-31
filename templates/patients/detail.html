@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.first_name }} {{ patient.last_name }}{% endblock %}
+{% block page_heading %}Patient profile{% endblock %}
+{% block breadcrumbs %}
+<div class="nv-breadcrumb">
+  <a href="{{ url_for('patients.list_patients') }}">Patients</a>
+  &middot; {{ patient.first_name }} {{ patient.last_name }}
+</div>
+{% endblock %}
+{% block content %}
+<p class="nv-section-heading mb-3">Case record</p>
+<div class="row g-4" id="folders">
+  <div class="col-lg-4">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Demographics</h2>
+      <p class="mb-2"><span class="nv-muted">Name</span><br /><strong>{{ patient.first_name }} {{ patient.last_name }}</strong></p>
+      {% if patient.mrn %}
+      <p class="mb-2"><span class="nv-muted">MRN</span><br /><strong>{{ patient.mrn }}</strong></p>
+      {% endif %}
+      <p class="mb-2"><span class="nv-muted">Birth date</span><br /><strong>{{ patient.birth_date or "—" }}</strong></p>
+      <p class="mb-2"><span class="nv-muted">Phone</span><br /><strong>{{ patient.phone or "—" }}</strong></p>
+      {% if patient.clinical_notes %}
+      <p class="mb-0"><span class="nv-muted">Clinical notes</span><br /><span class="small">{{ patient.clinical_notes }}</span></p>
+      {% endif %}
+    </div>
+    <div class="nv-card nv-card-pad mt-4">
+      <h2 class="nv-card-title">New medical folder</h2>
+      <p class="nv-card-sub">Folders group exams and analyses for this patient.</p>
+      <form method="post" action="{{ url_for('patients.create_folder', patient_id=patient.id) }}">
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="title">Title</label>
+          <input id="title" class="nv-input" name="title" placeholder="e.g. Baseline MRI" required />
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="ctx">Diagnosis context</label>
+          <input id="ctx" class="nv-input" name="diagnosis_context" placeholder="Optional" />
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="st">Status</label>
+          <select id="st" class="nv-select" name="status">
+            <option value="new">new</option>
+            <option value="in_progress">in_progress</option>
+            <option value="follow_up">follow_up</option>
+            <option value="closed">closed</option>
+          </select>
+        </div>
+        <button class="nv-btn nv-btn--primary w-100" type="submit">Create folder</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="nv-card nv-card-pad mb-4">
+      <h2 class="nv-card-title">Medical folders</h2>
+      <p class="nv-card-sub">Upload exams from your folders. Shared colleagues can view results but only the owner can upload.</p>
+      {% if folders %}
+      <div class="nv-table-wrap">
+        <table class="nv-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Context</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in folders %}
+            <tr>
+              <td>
+                <strong>{{ f.title }}</strong>
+                {% if f.doctor_id != current_user.id %}
+                <span class="d-block small nv-muted">Shared by colleague (owner #{{ f.doctor_id }})</span>
+                {% endif %}
+              </td>
+              <td class="nv-muted">{{ f.diagnosis_context or "—" }}</td>
+              <td><span class="nv-badge nv-status-{{ f.status }}">{{ f.status }}</span></td>
+              <td class="text-end">
+                {% if f.doctor_id == current_user.id %}
+                <a class="nv-btn nv-btn--primary nv-btn--sm" href="{{ url_for('exams.new_exam', folder_id=f.id) }}">Upload exam</a>
+                {% else %}
+                <span class="small nv-muted">View only</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% if f.doctor_id == current_user.id and colleagues %}
+            <tr class="border-0">
+              <td colspan="4" class="pt-0 pb-3 border-0">
+                <form method="post" action="{{ url_for('patients.share_folder', folder_id=f.id) }}" class="d-flex flex-wrap gap-2 align-items-center">
+                  <label class="nv-form-label w-100 mb-0" for="share-colleague-{{ f.id }}">Share with clinic colleague</label>
+                  <select id="share-colleague-{{ f.id }}" name="colleague_id" class="nv-select" style="max-width: 220px;" required>
+                    <option value="" disabled selected>Select colleague…</option>
+                    {% for c in colleagues %}
+                    <option value="{{ c.id }}">{{ c.full_name }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="nv-btn nv-btn--ghost nv-btn--sm">Share</button>
+                </form>
+                {% set shares = shares_by_folder.get(f.id, []) %}
+                {% if shares %}
+                <ul class="small mb-0 mt-2 ps-3">
+                  {% for sh in shares %}
+                  <li class="d-flex align-items-center gap-2 flex-wrap">
+                    {{ sh.shared_with.full_name }}
+                    <form method="post" action="{{ url_for('patients.unshare_folder', folder_id=f.id, colleague_id=sh.shared_with_doctor_id) }}" class="d-inline">
+                      <button type="submit" class="btn btn-link btn-sm p-0 small">Remove</button>
+                    </form>
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="nv-muted mb-0">No folders you can access yet. Create one to enable uploads.</p>
+      {% endif %}
+    </div>
+
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">Activity timeline</h2>
+      <p class="nv-card-sub">Recent events for this patient’s folders and exams.</p>
+      {% if timeline %}
+      <ul class="list-unstyled mb-0 nv-timeline">
+        {% for e in timeline %}
+        <li class="nv-timeline-item mb-3">
+          <span class="nv-muted small">{{ e.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</span>
+          <div><strong>{{ e.event_type }}</strong> · {{ e.resource_type or '—' }} #{{ e.resource_id or '—' }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="nv-muted mb-0">No audit entries yet for this patient.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}Forgot password{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Account recovery</p>
+      <h2 class="nv-card-title">Forgot your password?</h2>
+      <p class="nv-card-sub">Enter the email associated with your account; we'll send you a reset link.</p>
+      <form method="post" novalidate>
+        {{ form.csrf_token }}
+        <div class="nv-form-row">
+          {{ nv_field_label(form.email) }}
+          {{ form.email(class_="nv-input", autocomplete="email") }}
+          {% for err in form.email.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary w-100">Send reset link</button>
+      </form>
+      <p class="nv-muted mt-3 mb-0 text-center small">
+        <a href="{{ url_for('auth.login') }}">Back to sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

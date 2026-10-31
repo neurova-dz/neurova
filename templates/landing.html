@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}NEUROVA{% endblock %}
+{% block meta_author %}NEUROVA{% endblock %}
+{% block meta_description %}NEUROVA — imaging decision support for neuro-oncology MRI and diabetic retinopathy fundus grading. Structured workflows for radiologists and eye specialists.{% endblock %}
+{% block content %}
+<div class="nv-landing-fold">
+<section class="nv-trust-strip" aria-label="Product positioning">
+  <div class="nv-trust-strip__viewport">
+    <div class="nv-trust-strip__track">
+      <div class="nv-trust-strip__segment">
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Licensed clinician workflows
+        </span>
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Brain MRI &middot; Fundus imaging
+        </span>
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+          Queue-based analysis pipeline
+        </span>
+      </div>
+      <div class="nv-trust-strip__segment" aria-hidden="true">
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Licensed clinician workflows
+        </span>
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Brain MRI &middot; Fundus imaging
+        </span>
+        <span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+          Queue-based analysis pipeline
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="nv-hero">
+  <div class="nv-hero-inner nv-page-shell">
+    <div class="nv-hero-copy">
+      <p class="nv-hero-badge">Neuro-oncology &middot; Ophthalmology screening</p>
+      <h1>Structured imaging support for brain MRI and diabetic retinopathy reads</h1>
+      <p class="nv-hero-lead">
+        Surface lesion overlays, volumetrics, and grading outputs in one review-oriented workspace —
+        designed for radiologists and retina specialists who already anchor decisions on primary imaging.
+      </p>
+      <div class="nv-hero-cta">
+        <a class="nv-btn nv-btn--primary nv-btn--lg" href="{{ url_for('auth.register_clinic') }}">Register Your Clinic</a>
+        <a class="nv-btn nv-btn--ghost nv-btn--lg nv-btn--on-dark" href="{{ url_for('auth.login') }}">Sign in</a>
+      </div>
+    </div>
+    <aside class="nv-hero-panel" aria-labelledby="hero-panel-title">
+      <h3 id="hero-panel-title">Platform Snapshot</h3>
+      <ul class="nv-hero-list">
+        <li>Specialty-aware uploads: multi-file MRI volumes or single fundus studies</li>
+        <li>Patient folders, exams, and asynchronous inference jobs with traceable status</li>
+        <li>Brain tumor pipeline: axial / coronal / sagittal overlays plus interactive 3D review</li>
+        <li>Retina pipeline: DR-oriented classification with scored probability breakdown</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+</div>
+
+<section class="nv-landing-modalities" aria-labelledby="modalities-heading">
+  <div class="nv-page-shell">
+    <header class="nv-landing-band__intro">
+      <div class="nv-section__intro-head nv-landing-band__intro-head">
+        <div class="nv-section__intro-icons" aria-hidden="true">
+          <span class="nv-section__intro-ico nv-landing-band__ico--muted">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </span>
+          <span class="nv-section__intro-ico nv-landing-band__ico--muted">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+        </div>
+        <p class="nv-section-heading nv-section-heading--intro">Modalities</p>
+      </div>
+      <h2 id="modalities-heading" class="nv-landing-band__title">Clinical modalities</h2>
+      <div class="nv-landing-band__rule" aria-hidden="true"></div>
+      <p class="nv-landing-band__lead">
+        Two workflows, one consistent case shell — so tumor boards and retina clinics share the same roster and audit posture.
+      </p>
+    </header>
+    <div class="nv-landing-split">
+      <article class="nv-landing-mod-card">
+        <div class="nv-landing-mod-card__head">
+          <span class="nv-landing-mod-card__label">Oncology imaging</span>
+          <h3 class="nv-landing-mod-card__title">Brain MRI</h3>
+        </div>
+        <p class="nv-landing-mod-card__body">
+          Multi-sequence volumes mapped to a 3D tumor pipeline with slice overlays and quantitative class breakdowns for multidisciplinary review.
+        </p>
+      </article>
+      <article class="nv-landing-mod-card">
+        <div class="nv-landing-mod-card__head">
+          <span class="nv-landing-mod-card__label">Ophthalmology screening</span>
+          <h3 class="nv-landing-mod-card__title">Fundus imaging</h3>
+        </div>
+        <p class="nv-landing-mod-card__body">
+          Diabetic retinopathy–oriented grading with probability tables displayed alongside the acquired fundus image for secondary reads.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="nv-section nv-section--muted">
+  <div class="nv-page-shell">
+    <header class="nv-section__intro">
+      <div class="nv-section__intro-head">
+        <div class="nv-section__intro-icons" aria-hidden="true">
+          <span class="nv-section__intro-ico">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+          </span>
+          <span class="nv-section__intro-ico">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          </span>
+        </div>
+        <p class="nv-section-heading nv-section-heading--intro">Why NEUROVA</p>
+      </div>
+      <h2 class="nv-section-title nv-section-title--intro">Operational fit for imaging services</h2>
+      <div class="nv-section__rule" aria-hidden="true"></div>
+      <p class="nv-section-lead nv-section-lead--intro">
+        Typography, density, and navigation mirror clinical tooling — minimizing cognitive load when switching between PACS-adjacent tasks and AI-assisted summaries.
+      </p>
+    </header>
+    <div class="nv-features">
+      <article class="nv-feature">
+        <div class="nv-feature-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h8"/></svg>
+        </div>
+        <h4>Structured case flow</h4>
+        <p>Roster, folders, and exam lineage align with how imaging services segment longitudinal care.</p>
+      </article>
+      <article class="nv-feature">
+        <div class="nv-feature-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h4>Modality routing</h4>
+        <p>Routing defaults respect neuro MRI versus retina uploads without exposing unrelated controls.</p>
+      </article>
+      <article class="nv-feature">
+        <div class="nv-feature-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        </div>
+        <h4>Governance-ready artifacts</h4>
+        <p>Authentication, ownership boundaries, and downloadable structured outputs support QA conversations.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="nv-landing-closing">
+  <div class="nv-page-shell nv-landing-closing__inner">
+    <div class="nv-landing-closing__copy">
+      <h2 class="nv-landing-closing__title">Evaluate NEUROVA in your environment</h2>
+      <p class="nv-landing-closing__lead">
+        Register with your institutional specialty to unlock the matching upload defaults. Outputs remain adjunct to full imaging interpretation.
+      </p>
+    </div>
+    <div class="nv-landing-closing__actions">
+      <a class="nv-btn nv-btn--ghost nv-btn--lg nv-btn--closing-ghost" href="{{ url_for('auth.login') }}">Log in</a>
+      <a class="nv-btn nv-btn--primary nv-btn--lg" href="{{ url_for('auth.register') }}">Register</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

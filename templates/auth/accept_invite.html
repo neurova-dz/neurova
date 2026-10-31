@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}Accept invite{% endblock %}
+{% block content %}
+<div class="nv-auth-page px-3">
+  <div class="nv-auth">
+    <div class="nv-card nv-card-pad">
+      <p class="nv-section-heading">Invitation</p>
+      <h2 class="nv-card-title">Welcome to NEUROVA</h2>
+      <p class="nv-card-sub">
+        You've been invited as
+        <strong>{{ 'Clinic admin' if invitation.role == 'clinic_admin' else 'Doctor' }}</strong>
+        {% if invitation.clinic %}to <strong>{{ invitation.clinic.name }}</strong>{% endif %}.
+        Set your password to activate your account.
+      </p>
+
+      <form method="post" novalidate>
+        {{ form.csrf_token }}
+        <div class="nv-form-row">
+          <label class="nv-form-label">Email</label>
+          <input type="email" class="nv-input" value="{{ invitation.email }}" disabled />
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.full_name) }}
+          {{ form.full_name(class_="nv-input") }}
+          {% for err in form.full_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.password) }}
+          {{ form.password(class_="nv-input", autocomplete="new-password") }}
+          {% for err in form.password.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <div class="nv-form-row">
+          {{ nv_field_label(form.password_confirm) }}
+          {{ form.password_confirm(class_="nv-input", autocomplete="new-password") }}
+          {% for err in form.password_confirm.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="nv-btn nv-btn--primary w-100">Activate My Account</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

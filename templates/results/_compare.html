@@ -1,0 +1,108 @@
+{# Compare to a previous job — vanilla JS (no Alpine) so loading state and table always work. #}
+<div class="nv-card nv-card-pad" id="nv-result-compare">
+  <p class="nv-panel-title m-0">Compare to prior run</p>
+  <p class="nv-muted small m-0 mt-1">Same patient and modality. Values are model output, not longitudinal validation.</p>
+  <select class="nv-select mt-2" id="nv-compare-select" aria-label="Compare to previous analysis">
+    <option value="">Pick a previous analysis…</option>
+    {% for c in compare_jobs %}
+      <option value="{{ c.id }}">#{{ c.id }} · {{ (c.finished_at or c.created_at).strftime('%Y-%m-%d') }} · {{ c.result.diagnosis_label if c.result else '—' }}</option>
+    {% endfor %}
+  </select>
+  <p class="text-danger small mt-2 d-none" id="nv-compare-error" role="alert"></p>
+  <div class="text-muted small mt-2 d-none" id="nv-compare-loading">Loading…</div>
+  <div class="mt-2 d-none" id="nv-compare-panel">
+    <p class="nv-muted small m-0">This job (#{{ job.id }}) vs selected prior.</p>
+    <table class="nv-table mt-2 nv-result-compare-table" id="nv-compare-table">
+      <thead><tr><th>Metric</th><th>Current</th><th>Previous</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+<script>
+(function () {
+  var jobId = {{ job.id }};
+  var sel = document.getElementById("nv-compare-select");
+  if (!sel) return;
+  var loading = document.getElementById("nv-compare-loading");
+  var panel = document.getElementById("nv-compare-panel");
+  var err = document.getElementById("nv-compare-error");
+  var tbody = document.querySelector("#nv-compare-table tbody");
+
+  function hideErr() {
+    err.classList.add("d-none");
+    err.textContent = "";
+  }
+  var METRIC_LABELS = {
+    tumor_present: "Lesion detected (model)",
+    lesion_volume_mm3: "Lesion volume (mm³)",
+    lesion_volume_cc: "Lesion volume (cm³)",
+    class_id: "Predicted class",
+  };
+  function labelMetricKey(k) {
+    if (METRIC_LABELS[k]) return METRIC_LABELS[k];
+    return String(k).replace(/_/g, " ");
+  }
+  function fmtCell(v) {
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "boolean") return v ? "yes" : "no";
+    if (typeof v === "number" && !isNaN(v))
+      return v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 });
+    if (typeof v === "object") return JSON.stringify(v);
+    return String(v);
+  }
+  function renderTable(j) {
+    tbody.innerHTML = "";
+    var ma = (j.a && j.a.summary && j.a.summary.metrics) || {};
+    var mb = (j.b && j.b.summary && j.b.summary.metrics) || {};
+    var keySet = {};
+    Object.keys(ma).forEach(function (k) { keySet[k] = true; });
+    Object.keys(mb).forEach(function (k) { keySet[k] = true; });
+    var keys = Object.keys(keySet).sort();
+    keys.forEach(function (key) {
+      var tr = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.className = "nv-metric-label";
+      td0.textContent = labelMetricKey(key);
+      var td1 = document.createElement("td");
+      td1.textContent = fmtCell(ma[key]);
+      var td2 = document.createElement("td");
+      td2.textContent = fmtCell(mb[key]);
+      tr.appendChild(td0);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tbody.appendChild(tr);
+    });
+  }
+
+  sel.addEventListener("change", function () {
+    var otherId = sel.value;
+    hideErr();
+    if (!otherId) {
+      panel.classList.add("d-none");
+      loading.classList.add("d-none");
+      return;
+    }
+    loading.classList.remove("d-none");
+    panel.classList.add("d-none");
+    fetch("/results/jobs/" + jobId + "/compare/" + otherId, {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("Could not load comparison (" + r.status + ").");
+        return r.json();
+      })
+      .then(function (j) {
+        renderTable(j);
+        panel.classList.remove("d-none");
+      })
+      .catch(function (e) {
+        err.textContent = (e && e.message) ? e.message : "Could not load comparison.";
+        err.classList.remove("d-none");
+      })
+      .finally(function () {
+        loading.classList.add("d-none");
+      });
+  });
+})();
+</script>

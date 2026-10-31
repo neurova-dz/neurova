@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block page_heading %}Patients{% endblock %}
+{% block content %}
+<p class="nv-section-heading mb-3">Patient roster</p>
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="nv-card nv-card-pad">
+      <h2 class="nv-card-title">New patient</h2>
+      <p class="nv-card-sub">Creates a patient record you can attach folders to.</p>
+      <form method="post" action="{{ url_for('patients.create_patient') }}">
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="fn">First name</label>
+          <input id="fn" class="nv-input" name="first_name" required />
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="ln">Last name</label>
+          <input id="ln" class="nv-input" name="last_name" required />
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="bd">Birth date</label>
+          <input id="bd" class="nv-input" type="date" name="birth_date" />
+        </div>
+        <div class="nv-form-grid nv-form-grid--2">
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="sx">Sex</label>
+            <input id="sx" class="nv-input" name="sex" placeholder="Optional" />
+          </div>
+          <div class="nv-form-row">
+            <label class="nv-form-label" for="ph">Phone</label>
+            <input id="ph" class="nv-input" name="phone" placeholder="Optional" />
+          </div>
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="mrn">MRN</label>
+          <input id="mrn" class="nv-input" name="mrn" placeholder="Optional medical record number" />
+        </div>
+        <div class="nv-form-row">
+          <label class="nv-form-label" for="cn">Clinical notes</label>
+          <textarea id="cn" class="nv-textarea" name="clinical_notes" rows="2" placeholder="Optional"></textarea>
+        </div>
+        <button class="nv-btn nv-btn--primary w-100" type="submit">Create patient</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="nv-card nv-card-pad">
+      <div class="nv-split">
+        <div>
+          <h2 class="nv-card-title">Patient roster</h2>
+          <p class="nv-card-sub nv-mt-0">Search locally — data is rendered from your MySQL instance.</p>
+        </div>
+        <input id="patientSearch" class="nv-input" style="max-width: 220px;" placeholder="Search…" />
+      </div>
+      {% if patients %}
+      <div class="nv-table-wrap">
+        <table class="nv-table" id="patientsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>MRN</th>
+              <th>Phone</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in patients %}
+            <tr>
+              <td><strong>{{ p.first_name }} {{ p.last_name }}</strong></td>
+              <td>{{ p.mrn or "—" }}</td>
+              <td>{{ p.phone or "—" }}</td>
+              <td class="nv-muted">{{ p.created_at.strftime("%Y-%m-%d") }}</td>
+              <td class="text-end">
+                <a class="nv-btn nv-btn--ghost nv-btn--sm" href="{{ url_for('patients.view_patient', patient_id=p.id) }}">Open</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="nv-muted mb-0">No patients yet. Use the form to add your first case.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const input = document.getElementById("patientSearch");
+  const table = document.getElementById("patientsTable");
+  if (input && table) {
+    input.addEventListener("input", function () {
+      const q = this.value.toLowerCase();
+      table.querySelectorAll("tbody tr").forEach((row) => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+  }
+</script>
+{% endblock %}

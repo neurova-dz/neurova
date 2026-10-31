@@ -1,0 +1,7 @@
+{% if notifs %}
+  {% for notif in notifs %}
+    {% include "components/notification_item.html" %}
+  {% endfor %}
+{% else %}
+  <div class="nv-card-pad text-muted small">No notifications.</div>
+{% endif %}

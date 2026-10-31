@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NEUROVA report · #{{ job.id }}</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    body { font-family: "Helvetica", Arial, sans-serif; color: #0f172a; line-height: 1.4; }
+    h1 { font-size: 18pt; margin: 0 0 4pt; }
+    h2 { font-size: 12pt; margin: 12pt 0 4pt; color: #0f766e; }
+    .muted { color: #64748b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+    td, th { padding: 4pt; border-bottom: 1px solid #e2e8f0; font-size: 10pt; }
+    th { text-align: left; }
+    .footer { margin-top: 16pt; border-top: 1px solid #cbd5e1; padding-top: 6pt; font-size: 9pt; color: #64748b; }
+    .signature { margin-top: 24pt; }
+    .signature-line { display: inline-block; width: 60mm; border-top: 1px solid #0f172a; margin-top: 16pt; }
+  </style>
+</head>
+<body>
+  {% set patient = job.exam.folder.patient if job.exam and job.exam.folder else None %}
+  <h1>NEUROVA — Analysis report #{{ job.id }}</h1>
+  <p class="muted">Generated {{ job.finished_at.strftime('%Y-%m-%d %H:%M') if job.finished_at else '' }}</p>
+
+  <h2>Patient</h2>
+  <table>
+    <tr><th>Name</th><td>{{ patient.display_name if patient else '—' }}</td></tr>
+    <tr><th>MRN</th><td>{{ patient.mrn if patient else '—' }}</td></tr>
+    <tr><th>Sex / age</th><td>{{ (patient.sex if patient else '—') }} / {{ (patient.age_years if patient else '—') }}</td></tr>
+    <tr><th>Clinic</th><td>{{ patient.clinic.name if patient and patient.clinic else '—' }}</td></tr>
+  </table>
+
+  <h2>Examination</h2>
+  <table>
+    <tr><th>Modality</th><td>{{ (job.model_type.value if job.model_type and job.model_type.value else job.model_type)|replace('_',' ') }}</td></tr>
+    <tr><th>Exam date</th><td>{{ job.exam.exam_date.strftime('%Y-%m-%d %H:%M') if job.exam else '—' }}</td></tr>
+    {% if job.exam and job.exam.laterality %}<tr><th>Laterality</th><td>{{ job.exam.laterality.value if job.exam.laterality.value else job.exam.laterality }}</td></tr>{% endif %}
+    <tr><th>Compute</th><td>{{ job.compute_device or '—' }}</td></tr>
+    <tr><th>Duration</th><td>{{ job.duration_seconds }} seconds</td></tr>
+  </table>
+
+  <h2>Impression</h2>
+  <p>{{ clinical_summary.impression or '—' }}</p>
+
+  <h2>Findings</h2>
+  <p>{{ clinical_summary.findings or '—' }}</p>
+
+  {% if clinical_summary.metrics %}
+    <h2>Metrics</h2>
+    <table>
+      {% for k, v in clinical_summary.metrics.items() %}
+        {% if v is mapping %}
+          {% for sk, sv in v.items() %}<tr><th>{{ k }}.{{ sk }}</th><td>{{ "%.3f"|format(sv) if sv is number else sv }}</td></tr>{% endfor %}
+        {% else %}
+          <tr><th>{{ k }}</th><td>
+            {% if v is none %}—
+            {% elif v is sameas true %}yes
+            {% elif v is sameas false %}no
+            {% elif v is number %}{{ "%.3f"|format(v) }}
+            {% else %}{{ v }}
+            {% endif %}
+          </td></tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if helper_block and (helper_block.suggestions or helper_block.delta) %}
+    <h2>Diagnostic helper</h2>
+    {% if helper_block.suggestions %}<ul>{% for s in helper_block.suggestions %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+    {% if helper_block.delta %}<p>{{ helper_block.delta }}</p>{% endif %}
+    <p class="muted"><em>Helper output is heuristic only and must not replace clinical judgment.</em></p>
+  {% endif %}
+
+  <div class="signature">
+    <p class="muted">Reviewed by:</p>
+    <span class="signature-line"></span>
+    <p class="muted small">Doctor — {{ job.exam.folder.doctor.user.full_name if job.exam and job.exam.folder and job.exam.folder.doctor and job.exam.folder.doctor.user else '' }}</p>
+  </div>
+
+  <div class="footer">
+    {{ clinical_summary.disclaimer or 'NEUROVA decision support — not a substitute for clinical judgment.' }}
+  </div>
+</body>
+</html>

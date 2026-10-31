@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "partials/form_macros.html" import nv_field_label %}
+{% block title %}New Clinic / Hospital{% endblock %}
+{% block page_heading %}New Clinic / Hospital{% endblock %}
+{% block content %}
+<div class="nv-card nv-card-pad" style="max-width: 720px;">
+  <h2 class="nv-card-title">Create a clinic / Hospital and invite its admin</h2>
+  <p class="nv-muted">An invitation email will be sent (when email is enabled). The link is also displayed once after creation.</p>
+  <form method="post" novalidate>
+    {{ new_clinic_form.csrf_token }}
+    <div class="nv-form-row">
+      {{ nv_field_label(new_clinic_form.clinic_name) }}
+      {{ new_clinic_form.clinic_name(class_="nv-input", placeholder="e.g. City Imaging Center") }}
+      {% for err in new_clinic_form.clinic_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="nv-form-row">
+      {{ nv_field_label(new_clinic_form.country) }}
+      {{ new_clinic_form.country(class_="nv-input") }}
+      {% for err in new_clinic_form.country.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="nv-form-row">
+      {{ nv_field_label(new_clinic_form.admin_email) }}
+      {{ new_clinic_form.admin_email(class_="nv-input") }}
+      {% for err in new_clinic_form.admin_email.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="nv-form-row">
+      {{ nv_field_label(new_clinic_form.admin_full_name) }}
+      {{ new_clinic_form.admin_full_name(class_="nv-input") }}
+      {% for err in new_clinic_form.admin_full_name.errors %}<div class="nv-field-error">{{ err }}</div>{% endfor %}
+    </div>
+    <button class="nv-btn nv-btn--primary">Create Clinic / Hospital</button>
+    <a class="nv-btn nv-btn--ghost nv-btn--sm ms-2" href="{{ url_for('admin.clinics_list') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
